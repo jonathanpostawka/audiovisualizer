@@ -13,7 +13,7 @@ How to Use
 Clone the repository:
 bash
 Code kopieren
-git clone https://github.com/yourusername/audiovisualizer.git
+git clone https://github.com/jonathanpostawka/audiovisualizer.git
 Open the index.html file in a browser.
 Upload an audio file to begin the visualization.
 Customize visual settings using the provided control panel.
