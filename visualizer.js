@@ -1,11 +1,13 @@
 let scene, camera, renderer, analyser, dataArray, audioContext, source, controls;
 let geometries = [], material;
 let playButton, pauseButton, loadingBar, loadingBarContainer, loadingText;
-let geometrySelect, bgColorInput, geomColorInput, dynamicsStrengthInput, dynamicsIntensityInput, randomizeCheckbox, light1ColorInput, light2ColorInput, lightRotationSpeedInput, surfaceTypeSelect, masterEffectStrengthInput, geometryCountInput, bgColorAutoSelect, geomColorAutoSelect, stroboColorInput, cameraMovementCheckbox, strobeEffectCheckbox, cameraSpeedInput, cameraCrazinessInput;
+let geometrySelect, bgColorInput, geomColorInput, dynamicsStrengthInput, dynamicsIntensityInput, randomizeCheckbox, light1ColorInput, light2ColorInput, lightRotationSpeedInput, surfaceTypeSelect, masterEffectStrengthInput, geometryCountInput, bgColorAutoSelect, geomColorAutoSelect, stroboColorInput, cameraMovementCheckbox, cameraSpeedInput, cameraCrazinessInput;
 let positionSensitivityInput, rotationSensitivityInput, scaleSensitivityInput, skewSensitivityInput, twistSensitivityInput, movementPatternSelect;
 let audio, isPlaying = false;
+let composer, renderPass, filmPass, vignettePass, colorCorrectionPass;
 let counter = 0;
 let mediaRecorder;
+let videoQuality = 'high';
 let recordedChunks = [];
 let recording = false;
 let light1, light2;
@@ -13,7 +15,7 @@ let dynamicsStrength = 1, dynamicsIntensity = 1, randomize = false, masterEffect
 let geometryCount = 1, organicMovement = false;
 let cameraRadius = 10;
 let cameraAngle = 0;
-let automateCamera = false, strobeEffect = false;
+let automateCamera = false;
 let cameraSpeed = 1, cameraCraziness = 0;
 let cameraModeSelect;
 let cameraMode = 'normal';
@@ -72,8 +74,41 @@ function init() {
     controls.update();
 
     window.addEventListener('resize', onWindowResize, false);
+	
+	// Create the composer for postprocessing
+    composer = new THREE.EffectComposer(renderer);
+
+    // Add the render pass
+    renderPass = new THREE.RenderPass(scene, camera);
+    composer.addPass(renderPass);
+
+    // Add a film grain effect
+    filmPass = new THREE.FilmPass(0.35, 0.025, 648, false);
+    filmPass.enabled = false; // Start disabled
+    composer.addPass(filmPass);
+
+    // Add a vignette effect
+    vignettePass = new THREE.ShaderPass(THREE.VignetteShader);
+    vignettePass.uniforms["offset"].value = 1.5;
+    vignettePass.uniforms["darkness"].value = 1.2;
+    vignettePass.enabled = false; // Start disabled
+    composer.addPass(vignettePass);
+
+    // Add a color correction effect
+    colorCorrectionPass = new THREE.ShaderPass(THREE.ColorCorrectionShader);
+    colorCorrectionPass.enabled = false; // Start disabled
+    composer.addPass(colorCorrectionPass);
+
+    // Add a final pass to copy to the screen
+    const copyPass = new THREE.ShaderPass(THREE.CopyShader);
+    copyPass.renderToScreen = true;
+    composer.addPass(copyPass);
+	
+
+    
 
     setupUIControls();
+	setupNewEffectControls();
 	setupParticleControls();
 setupNewEffectControls();
     createGeometries();
@@ -541,7 +576,10 @@ function setupUIControls() {
     geomColorAutoSelect = document.getElementById('geomColorAuto');
     stroboColorInput = document.getElementById('stroboColor');
     cameraMovementCheckbox = document.getElementById('automateCamera');
-    strobeEffectCheckbox = document.getElementById('strobeEffect');
+    const videoQualitySelect = document.getElementById('videoQualitySelect');
+    videoQualitySelect.addEventListener('change', (event) => {
+        videoQuality = event.target.value;
+    });
     cameraSpeedInput = document.getElementById('cameraSpeed');
     cameraCrazinessInput = document.getElementById('cameraCraziness');
     setupMovementControls();
@@ -629,9 +667,7 @@ function setupUIControls() {
         cameraCraziness = parseFloat(event.target.value);
     });
 
-    strobeEffectCheckbox.addEventListener('change', (event) => {
-        strobeEffect = event.target.checked;
-    });
+    
 }
 
 function setupMovementControls() {
@@ -671,6 +707,8 @@ function animate() {
     requestAnimationFrame(animate);
 
     const time = performance.now() * 0.001;
+	
+	
 
     if (analyser) {
         analyser.getByteFrequencyData(dataArray);
@@ -694,6 +732,7 @@ function animate() {
             // Update the material to reflect the new dynamics values
             material.uniforms.dynamicsStrength.value = dynamicsStrength;
             material.uniforms.dynamicsIntensity.value = dynamicsIntensity;
+	    
         }
     }
 
@@ -752,16 +791,58 @@ function animate() {
 
     automateColors(time);
 
-    if (strobeEffect) {
-        applyStrobeEffect();
-    }
+    
 
     material.uniforms.time.value += 0.05;
 
 	animateParticles();
 
     renderer.render(scene, camera);
+	 composer.render();
 }
+
+
+function setupNewEffectControls() {
+    const filmGrainToggle = document.getElementById('filmGrainToggle');
+    const filmGrainIntensity = document.getElementById('filmGrainIntensity');
+    const vignetteToggle = document.getElementById('vignetteToggle');
+    const vignetteDarkness = document.getElementById('vignetteDarkness');
+    const colorCorrectionToggle = document.getElementById('colorCorrectionToggle');
+    const hue = document.getElementById('hue');
+    const saturation = document.getElementById('saturation');
+    const brightness = document.getElementById('brightness');
+
+    // Film Grain
+    filmGrainToggle.addEventListener('change', (event) => {
+        filmPass.enabled = event.target.checked;
+    });
+    filmGrainIntensity.addEventListener('input', (event) => {
+        filmPass.uniforms.grayscale.value = parseFloat(event.target.value);
+    });
+
+    // Vignette
+    vignetteToggle.addEventListener('change', (event) => {
+        vignettePass.enabled = event.target.checked;
+    });
+    vignetteDarkness.addEventListener('input', (event) => {
+        vignettePass.uniforms.darkness.value = parseFloat(event.target.value);
+    });
+
+    // Color Correction
+    colorCorrectionToggle.addEventListener('change', (event) => {
+        colorCorrectionPass.enabled = event.target.checked;
+    });
+    hue.addEventListener('input', (event) => {
+        colorCorrectionPass.uniforms.powRGB.value.x = parseFloat(event.target.value);
+    });
+    saturation.addEventListener('input', (event) => {
+        colorCorrectionPass.uniforms.mulRGB.value.y = parseFloat(event.target.value);
+    });
+    brightness.addEventListener('input', (event) => {
+        colorCorrectionPass.uniforms.mulRGB.value.z = parseFloat(event.target.value);
+    });
+}
+
 
 function animateParticles() {
   if (!particleSystem.visible) return;
@@ -870,11 +951,7 @@ function automateColors(time) {
     }
 }
 
-function applyStrobeEffect() {
-    const maxIntensity = Math.max(...dataArray);
-    const strobeColor = maxIntensity > 128 ? 0xffffff : 0x000000;
-    renderer.setClearColor(strobeColor);
-}
+
 
 function updateCameraMovement(time) {
 const mainGeometryPosition = geometries.length > 0 ? geometries[0].position : new THREE.Vector3(0, 0, 0);
@@ -998,8 +1075,20 @@ function startRecording() {
         ...audioStream.getAudioTracks()
     ]);
 	 recordedChunks = [];
-
-    mediaRecorder = new MediaRecorder(combinedStream, { mimeType: 'video/webm' });
+let options;
+    switch (videoQuality) {
+        case 'low':
+            options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 500000 };
+            break;
+        case 'medium':
+            options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 2500000 };
+            break;
+        case 'high':
+        default:
+            options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 5000000 };
+            break;
+    }
+    mediaRecorder = new MediaRecorder(combinedStream, options);
 
     mediaRecorder.ondataavailable = function(event) {
         if (event.data.size > 0) {
