@@ -65,6 +65,14 @@
     	    <button id="startRecordingButton">Start Recording</button>
     	    <button id="stopRecordingButton">Stop Recording</button>
 	</div>
+	<div class="control-group">
+    		<label for="videoQualitySelect">Video Quality:</label>
+    		<select id="videoQualitySelect">
+        	<option value="high">High</option>
+        	<option value="medium">Medium</option>
+        	<option value="low">Low</option>
+    	</select>
+	</div>
 
         <!-- Add this inside the #controls div -->
 <div class="control-group">
@@ -276,11 +284,7 @@
             <input type="range" id="cameraCraziness" value="0" min="0" max="1" step="0.1">
         </div>
 
-        <!-- Strobe Effect -->
-        <div class="control-group">
-            <label for="strobeEffect">Strobe Effect:</label>
-            <input type="checkbox" id="strobeEffect">
-        </div>
+       
 
 	<!-- New Shader Effects Group -->
 	<div class="control-group">
@@ -308,6 +312,49 @@
   		<input type="range" id="bloomIntensity" value="1" min="0" max="5" step="0.1">
 	</div>
 
+	<!-- Shader Effects Controls -->
+<div class="control-group">
+    <label for="filmGrainToggle">Film Grain:</label>
+    <input type="checkbox" id="filmGrainToggle">
+</div>
+
+<div class="control-group">
+    <label for="filmGrainIntensity">Grain Intensity:</label>
+    <input type="range" id="filmGrainIntensity" value="0.35" min="0" max="1" step="0.01">
+</div>
+
+<div class="control-group">
+    <label for="vignetteToggle">Vignette:</label>
+    <input type="checkbox" id="vignetteToggle">
+</div>
+
+<div class="control-group">
+    <label for="vignetteDarkness">Vignette Darkness:</label>
+    <input type="range" id="vignetteDarkness" value="1.2" min="0" max="2" step="0.1">
+</div>
+
+<div class="control-group">
+    <label for="colorCorrectionToggle">Color Correction:</label>
+    <input type="checkbox" id="colorCorrectionToggle">
+</div>
+
+<div class="control-group">
+    <label for="hue">Hue:</label>
+    <input type="range" id="hue" value="0" min="0" max="2" step="0.01">
+</div>
+
+<div class="control-group">
+    <label for="saturation">Saturation:</label>
+    <input type="range" id="saturation" value="1" min="0" max="2" step="0.01">
+</div>
+
+<div class="control-group">
+    <label for="brightness">Brightness:</label>
+    <input type="range" id="brightness" value="1" min="0" max="2" step="0.01">
+</div>
+
+
+
 
     </div>
 
@@ -324,6 +371,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/VignetteShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/FilmShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/ColorCorrectionShader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/FilmPass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/VignettePass.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ColorCorrectionPass.js"></script>
+
     <script src="visualizer.js"></script>
 </body>
 </html>
