@@ -741,6 +741,11 @@ function animate() {
 
 
 function setupNewEffectControls() {
+    const glowEffectToggle = document.getElementById('glowEffectToggle');
+    const distortionEffectToggle = document.getElementById('distortionEffectToggle');
+    const chromaticAberrationToggle = document.getElementById('chromaticAberrationToggle');
+    const motionBlurToggle = document.getElementById('motionBlurToggle');
+    const bloomIntensityInput = document.getElementById('bloomIntensity');
     const filmGrainToggle = document.getElementById('filmGrainToggle');
     const filmGrainIntensity = document.getElementById('filmGrainIntensity');
     const vignetteToggle = document.getElementById('vignetteToggle');
@@ -749,6 +754,26 @@ function setupNewEffectControls() {
     const hue = document.getElementById('hue');
     const saturation = document.getElementById('saturation');
     const brightness = document.getElementById('brightness');
+
+    glowEffectToggle.addEventListener('change', (event) => {
+        material.uniforms.glowEnabled.value = event.target.checked;
+    });
+
+    distortionEffectToggle.addEventListener('change', (event) => {
+        material.uniforms.distortionEnabled.value = event.target.checked;
+    });
+
+    chromaticAberrationToggle.addEventListener('change', (event) => {
+        material.uniforms.chromaticAberrationEnabled.value = event.target.checked;
+    });
+
+    motionBlurToggle.addEventListener('change', (event) => {
+        material.uniforms.motionBlurEnabled.value = event.target.checked;
+    });
+
+    bloomIntensityInput.addEventListener('input', (event) => {
+        material.uniforms.bloomIntensity.value = parseFloat(event.target.value);
+    });
 
     // Film Grain
     filmGrainToggle.addEventListener('change', (event) => {
