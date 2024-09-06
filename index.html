@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
     <title>Audio Visualizer</title>
     <style>
         body {
@@ -11,6 +11,7 @@
             font-family: Arial, sans-serif;
             background-color: #000;
         }
+
         #controls {
             position: absolute;
             top: 10px;
@@ -19,16 +20,19 @@
             background: rgba(255, 255, 255, 0.8);
             padding: 10px;
             border-radius: 5px;
-	    max-height: 90vh; /* Set maximum height for the control panel */
+            max-height: 90vh; /* Set maximum height for the control panel */
             overflow-y: auto; /* Enable vertical scrolling */
             width: 250px; /* You can adjust the width if necessary */
         }
+
         .control-group {
             margin-bottom: 10px;
         }
+
         canvas {
             display: block;
         }
+
         #loadingBarContainer {
             position: absolute;
             top: 50%;
@@ -36,17 +40,20 @@
             transform: translate(-50%, -50%);
             display: none;
         }
+
         #loadingBar {
             width: 300px;
             height: 10px;
             background-color: #f3f3f3;
             margin-bottom: 5px;
         }
+
         #loadingBarProgress {
             height: 100%;
             width: 0%;
             background-color: #4caf50;
         }
+
         #audioCanvas {
             width: 100vw;
             height: 100vh;
@@ -54,333 +61,330 @@
     </style>
 </head>
 <body>
-    <div id="controls">
-        <div class="control-group">
-            <button id="playButton">Play</button>
-            <button id="pauseButton">Pause</button>
-            <input type="file" id="fileInput" accept="audio/*">
-        </div>
-
-	<div class="control-group">
-    	    <button id="startRecordingButton">Start Recording</button>
-    	    <button id="stopRecordingButton">Stop Recording</button>
-	</div>
-	<div class="control-group">
-    		<label for="videoQualitySelect">Video Quality:</label>
-    		<select id="videoQualitySelect">
-        	<option value="high">High</option>
-        	<option value="medium">Medium</option>
-        	<option value="low">Low</option>
-    	</select>
-	</div>
-
-        <!-- Add this inside the #controls div -->
-<div class="control-group">
-  <label for="particlesToggle">Particles:</label>
-  <input type="checkbox" id="particlesToggle">
-</div>
-
-<div class="control-group">
-  <label for="particleCount">Particle Count:</label>
-  <input type="range" id="particleCount" min="100" max="10000" step="100" value="1000">
-</div>
-
-<div class="control-group">
-  <label for="particleShape">Particle Shape:</label>
-  <select id="particleShape">
-    <option value="circle">Circle</option>
-    <option value="square">Square</option>
-    <option value="triangle">Triangle</option>
-    <option value="star">Star</option>
-  </select>
-</div>
-
-<div class="control-group">
-  <label for="particleSize">Particle Size:</label>
-  <input type="range" id="particleSize" min="0.1" max="5" step="0.1" value="1">
-</div>
-
-<div class="control-group">
-  <label for="particleSpeed">Particle Speed:</label>
-  <input type="range" id="particleSpeed" min="0.1" max="5" step="0.1" value="1">
-</div>
-
-<div class="control-group">
-  <label for="particleDirection">Particle Direction:</label>
-  <select id="particleDirection">
-    <option value="outward">Outward</option>
-    <option value="inward">Inward</option>
-    <option value="upward">Upward</option>
-    <option value="downward">Downward</option>
-    <option value="random">Random</option>
-  </select>
-</div>
-
-<div class="control-group">
-  <label for="particleMovement">Particle Movement:</label>
-  <select id="particleMovement">
-    <option value="linear">Linear</option>
-    <option value="circular">Circular</option>
-    <option value="spiral">Spiral</option>
-  </select>
-</div>
-        <div class="control-group">
-            <label for="geometrySelect">Geometry:</label>
-            <select id="geometrySelect">
-                <option value="sphere">Sphere</option>
-                <option value="cube">Cube</option>
-                <option value="torus">Torus</option>
-                <option value="plane">Plane</option>
-                <option value="icosahedron">Icosahedron</option>
-                <option value="octahedron">Octahedron</option>
-                <option value="tetrahedron">Tetrahedron</option>
-                <option value="dodecahedron">Dodecahedron</option>
-                <option value="cylinder">Cylinder</option>
-                <option value="cone">Cone</option>
-                <option value="pyramid">Pyramid</option>
-                <option value="knot">Knot</option>
-                <option value="ring">Ring</option>
-                <option value="grid">Grid</option>
-                <option value="star">Star</option>
-                <option value="torusKnot">Torus Knot</option>
-                <option value="boxLine">Box Line</option>
-                <option value="heart">Heart</option>
-                <option value="arrow">Arrow</option>
-                <option value="gear">Gear</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="geometryCount">Geometry Count:</label>
-            <input type="number" id="geometryCount" value="1" min="1" max="50">
-        </div>
-        <div class="control-group">
-            <label for="bgColor">Background Color:</label>
-            <input type="color" id="bgColor" value="#000000">
-            <select id="bgColorAuto">
-                <option value="none">None</option>
-                <option value="fade">Fade</option>
-                <option value="strobo">Strobo</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="geomColor">Geometry Color:</label>
-            <input type="color" id="geomColor" value="#ffffff">
-            <select id="geomColorAuto">
-                <option value="none">None</option>
-                <option value="fade">Fade</option>
-                <option value="strobo">Strobo</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="dynamicsStrength">Dynamics Strength:</label>
-            <input type="range" id="dynamicsStrength" value="1" min="0" max="5" step="0.1">
-        </div>
-        <div class="control-group">
-            <label for="dynamicsIntensity">Dynamics Intensity:</label>
-            <input type="range" id="dynamicsIntensity" value="1" min="0" max="5" step="0.1">
-        </div>
-
-	<div class="control-group">
-    		<label for="dynamicAutoToggle">Automate Dynamics:</label>
-    		<input type="checkbox" id="dynamicAutoToggle">
-	</div>
-
-	<div class="control-group">
-    		<label for="positionSensitivity">Position Sensitivity:</label>
-                <input type="range" id="positionSensitivity" value="1" min="0.1" max="5" step="0.1">
-	</div>
-
-        <div class="control-group">
-                <label for="rotationSensitivity">Rotation Sensitivity:</label>
-                <input type="range" id="rotationSensitivity" value="1" min="0.1" max="5" step="0.1">
-        </div>
-
-        <div class="control-group">
-                <label for="scaleSensitivity">Scale Sensitivity:</label>
-                <input type="range" id="scaleSensitivity" value="1" min="0.1" max="5" step="0.1">
-        </div>
-
-        <div class="control-group">
-                <label for="skewSensitivity">Skew Sensitivity:</label>
-    	        <input type="range" id="skewSensitivity" value="0.5" min="0.1" max="5" step="0.1">
-	</div>
-
-	<div class="control-group">
-    		<label for="twistSensitivity">Twist Sensitivity:</label>
-    		<input type="range" id="twistSensitivity" value="0.5" min="0.1" max="5" step="0.1">
-	</div>
-
-	<div class="control-group">
-  		<label for="movementPatternSelect">Movement Pattern:</label>
-    		<select id="movementPatternSelect">
-        		<option value="oscillation">Oscillation</option>
-        		<option value="wave">Wave</option>
-        		<option value="spiral">Spiral</option>
-			<option value="none">None</option>
-    		</select>
-	</div>
-        <div class="control-group">
-            <label for="randomize">Randomize Movement:</label>
-            <input type="checkbox" id="randomize">
-        </div>
-        <div class="control-group">
-            <label for="light1Color">Light 1 Color:</label>
-            <input type="color" id="light1Color" value="#ffffff">
-        </div>
-        <div class="control-group">
-            <label for="light2Color">Light 2 Color:</label>
-            <input type="color" id="light2Color" value="#ffffff">
-        </div>
-        <div class="control-group">
-            <label for="lightRotationSpeed">Light Rotation Speed:</label>
-            <input type="range" id="lightRotationSpeed" value="0.1" min="0" max="1" step="0.01">
-        </div>
-        <div class="control-group">
-            <label for="surfaceType">Surface Type:</label>
-            <select id="surfaceType">
-                <option value="standard">Standard</option>
-                <option value="reflective">Reflective</option>
-                <option value="transparent">Transparent</option>
-                <option value="psychedelic">Psychedelic</option>
-                <option value="chrome">Chrome</option>
-                <option value="holographic">Holographic</option>
-                <option value="fluid">Fluid</option>
-            </select>
-        </div>
-        <div class="control-group">
-            <label for="masterEffectStrength">Master Effect Strength:</label>
-            <input type="range" id="masterEffectStrength" value="1" min="0" max="5" step="0.1">
-        </div>
-        <div class="control-group">
-            <label for="stroboColor">Strobo Color:</label>
-            <input type="color" id="stroboColor" value="#ff00ff">
-        </div>
-
-        <!-- Automate Camera Movement -->
-        <div class="control-group">
-            <label for="automateCamera">Automate Camera:</label>
-            <input type="checkbox" id="automateCamera">
-        </div>
-	
-	<div class="control-group">
-    		<label for="cameraModeSelect">Camera Mode:</label>
-    		<select id="cameraModeSelect">
-        	<option value="normal">Normal</option>
-        	<option value="fixedRotation">Fixed Rotation</option>
-        	<option value="zoomInOut">Zoom In and Out</option>
-        	<option value="circularPath">Circular Path</option>
-        	<option value="randomJump">Random Jump</option>
-        	<option value="spiral">Spiral</option>
-    		</select>
-	</div>
-
-        <!-- New Controls for Camera Speed and Craziness -->
-        <div class="control-group">
-            <label for="cameraSpeed">Camera Speed:</label>
-            <input type="range" id="cameraSpeed" value="1" min="0.1" max="5" step="0.1">
-        </div>
-        <div class="control-group">
-            <label for="cameraCraziness">Camera Craziness:</label>
-            <input type="range" id="cameraCraziness" value="0" min="0" max="1" step="0.1">
-        </div>
-
-       
-
-	<!-- New Shader Effects Group -->
-	<div class="control-group">
-  		<label for="glowEffectToggle">Glow Effect:</label>
-  		<input type="checkbox" id="glowEffectToggle">
-	</div>
-
-	<div class="control-group">
-  		<label for="distortionEffectToggle">Distortion Effect:</label>
-  		<input type="checkbox" id="distortionEffectToggle">
-	</div>
-
-	<div class="control-group">
-  		<label for="chromaticAberrationToggle">Chromatic Aberration:</label>
-  		<input type="checkbox" id="chromaticAberrationToggle">
-	</div>
-
-	<div class="control-group">
-  		<label for="motionBlurToggle">Motion Blur:</label>
-  		<input type="checkbox" id="motionBlurToggle">
-	</div>
-
-	<div class="control-group">
-  		<label for="bloomIntensity">Bloom Intensity:</label>
-  		<input type="range" id="bloomIntensity" value="1" min="0" max="5" step="0.1">
-	</div>
-
-	<!-- Shader Effects Controls -->
-<div class="control-group">
-    <label for="filmGrainToggle">Film Grain:</label>
-    <input type="checkbox" id="filmGrainToggle">
-</div>
-
-<div class="control-group">
-    <label for="filmGrainIntensity">Grain Intensity:</label>
-    <input type="range" id="filmGrainIntensity" value="0.35" min="0" max="1" step="0.01">
-</div>
-
-<div class="control-group">
-    <label for="vignetteToggle">Vignette:</label>
-    <input type="checkbox" id="vignetteToggle">
-</div>
-
-<div class="control-group">
-    <label for="vignetteDarkness">Vignette Darkness:</label>
-    <input type="range" id="vignetteDarkness" value="1.2" min="0" max="2" step="0.1">
-</div>
-
-<div class="control-group">
-    <label for="colorCorrectionToggle">Color Correction:</label>
-    <input type="checkbox" id="colorCorrectionToggle">
-</div>
-
-<div class="control-group">
-    <label for="hue">Hue:</label>
-    <input type="range" id="hue" value="0" min="0" max="2" step="0.01">
-</div>
-
-<div class="control-group">
-    <label for="saturation">Saturation:</label>
-    <input type="range" id="saturation" value="1" min="0" max="2" step="0.01">
-</div>
-
-<div class="control-group">
-    <label for="brightness">Brightness:</label>
-    <input type="range" id="brightness" value="1" min="0" max="2" step="0.01">
-</div>
-
-
-
-
+<div id="controls">
+    <div class="control-group">
+        <button id="playButton">Play</button>
+        <button id="pauseButton">Pause</button>
+        <input accept="audio/*" id="fileInput" type="file">
     </div>
 
-    <canvas id="audioCanvas"></canvas>
-
-    <div id="loadingBarContainer">
-        <div id="loadingBar">
-            <div id="loadingBarProgress"></div>
-        </div>
-        <p id="loadingText">Loading...</p>
+    <div class="control-group">
+        <button id="startRecordingButton">Start Recording</button>
+        <button id="stopRecordingButton">Stop Recording</button>
+    </div>
+    <div class="control-group">
+        <label for="videoQualitySelect">Video Quality:</label>
+        <select id="videoQualitySelect">
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
+        </select>
     </div>
 
-    <!-- Including necessary scripts for Three.js controls and tweening animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/VignetteShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/FilmShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/ColorCorrectionShader.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/FilmPass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/VignettePass.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ColorCorrectionPass.js"></script>
-    <script src="visualizer.js"></script>
+    <!-- Add this inside the #controls div -->
+    <div class="control-group">
+        <label for="particlesToggle">Particles:</label>
+        <input id="particlesToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="particleCount">Particle Count:</label>
+        <input id="particleCount" max="10000" min="100" step="100" type="range" value="1000">
+    </div>
+
+    <div class="control-group">
+        <label for="particleShape">Particle Shape:</label>
+        <select id="particleShape">
+            <option value="circle">Circle</option>
+            <option value="square">Square</option>
+            <option value="triangle">Triangle</option>
+            <option value="star">Star</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label for="particleSize">Particle Size:</label>
+        <input id="particleSize" max="5" min="0.1" step="0.1" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="particleSpeed">Particle Speed:</label>
+        <input id="particleSpeed" max="5" min="0.1" step="0.1" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="particleDirection">Particle Direction:</label>
+        <select id="particleDirection">
+            <option value="outward">Outward</option>
+            <option value="inward">Inward</option>
+            <option value="upward">Upward</option>
+            <option value="downward">Downward</option>
+            <option value="random">Random</option>
+        </select>
+    </div>
+
+    <div class="control-group">
+        <label for="particleMovement">Particle Movement:</label>
+        <select id="particleMovement">
+            <option value="linear">Linear</option>
+            <option value="circular">Circular</option>
+            <option value="spiral">Spiral</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="geometrySelect">Geometry:</label>
+        <select id="geometrySelect">
+            <option value="sphere">Sphere</option>
+            <option value="cube">Cube</option>
+            <option value="torus">Torus</option>
+            <option value="plane">Plane</option>
+            <option value="icosahedron">Icosahedron</option>
+            <option value="octahedron">Octahedron</option>
+            <option value="tetrahedron">Tetrahedron</option>
+            <option value="dodecahedron">Dodecahedron</option>
+            <option value="cylinder">Cylinder</option>
+            <option value="cone">Cone</option>
+            <option value="pyramid">Pyramid</option>
+            <option value="knot">Knot</option>
+            <option value="ring">Ring</option>
+            <option value="grid">Grid</option>
+            <option value="star">Star</option>
+            <option value="torusKnot">Torus Knot</option>
+            <option value="boxLine">Box Line</option>
+            <option value="heart">Heart</option>
+            <option value="arrow">Arrow</option>
+            <option value="gear">Gear</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="geometryCount">Geometry Count:</label>
+        <input id="geometryCount" max="50" min="1" type="number" value="1">
+    </div>
+    <div class="control-group">
+        <label for="bgColor">Background Color:</label>
+        <input id="bgColor" type="color" value="#000000">
+        <select id="bgColorAuto">
+            <option value="none">None</option>
+            <option value="fade">Fade</option>
+            <option value="strobo">Strobo</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="geomColor">Geometry Color:</label>
+        <input id="geomColor" type="color" value="#ffffff">
+        <select id="geomColorAuto">
+            <option value="none">None</option>
+            <option value="fade">Fade</option>
+            <option value="strobo">Strobo</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="dynamicsStrength">Dynamics Strength:</label>
+        <input id="dynamicsStrength" max="5" min="0" step="0.1" type="range" value="1">
+    </div>
+    <div class="control-group">
+        <label for="dynamicsIntensity">Dynamics Intensity:</label>
+        <input id="dynamicsIntensity" max="5" min="0" step="0.1" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="dynamicAutoToggle">Automate Dynamics:</label>
+        <input id="dynamicAutoToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="positionSensitivity">Position Sensitivity:</label>
+        <input id="positionSensitivity" max="5" min="0.1" step="0.1" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="rotationSensitivity">Rotation Sensitivity:</label>
+        <input id="rotationSensitivity" max="5" min="0.1" step="0.1" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="scaleSensitivity">Scale Sensitivity:</label>
+        <input id="scaleSensitivity" max="5" min="0.1" step="0.1" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="skewSensitivity">Skew Sensitivity:</label>
+        <input id="skewSensitivity" max="5" min="0.1" step="0.1" type="range" value="0.5">
+    </div>
+
+    <div class="control-group">
+        <label for="twistSensitivity">Twist Sensitivity:</label>
+        <input id="twistSensitivity" max="5" min="0.1" step="0.1" type="range" value="0.5">
+    </div>
+
+    <div class="control-group">
+        <label for="movementPatternSelect">Movement Pattern:</label>
+        <select id="movementPatternSelect">
+            <option value="oscillation">Oscillation</option>
+            <option value="wave">Wave</option>
+            <option value="spiral">Spiral</option>
+            <option value="none">None</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="randomize">Randomize Movement:</label>
+        <input id="randomize" type="checkbox">
+    </div>
+    <div class="control-group">
+        <label for="light1Color">Light 1 Color:</label>
+        <input id="light1Color" type="color" value="#ffffff">
+    </div>
+    <div class="control-group">
+        <label for="light2Color">Light 2 Color:</label>
+        <input id="light2Color" type="color" value="#ffffff">
+    </div>
+    <div class="control-group">
+        <label for="lightRotationSpeed">Light Rotation Speed:</label>
+        <input id="lightRotationSpeed" max="1" min="0" step="0.01" type="range" value="0.1">
+    </div>
+    <div class="control-group">
+        <label for="surfaceType">Surface Type:</label>
+        <select id="surfaceType">
+            <option value="standard">Standard</option>
+            <option value="reflective">Reflective</option>
+            <option value="transparent">Transparent</option>
+            <option value="psychedelic">Psychedelic</option>
+            <option value="chrome">Chrome</option>
+            <option value="holographic">Holographic</option>
+            <option value="fluid">Fluid</option>
+        </select>
+    </div>
+    <div class="control-group">
+        <label for="masterEffectStrength">Master Effect Strength:</label>
+        <input id="masterEffectStrength" max="5" min="0" step="0.1" type="range" value="1">
+    </div>
+    <div class="control-group">
+        <label for="stroboColor">Strobo Color:</label>
+        <input id="stroboColor" type="color" value="#ff00ff">
+    </div>
+
+    <!-- Automate Camera Movement -->
+    <div class="control-group">
+        <label for="automateCamera">Automate Camera:</label>
+        <input id="automateCamera" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="cameraModeSelect">Camera Mode:</label>
+        <select id="cameraModeSelect">
+            <option value="normal">Normal</option>
+            <option value="fixedRotation">Fixed Rotation</option>
+            <option value="zoomInOut">Zoom In and Out</option>
+            <option value="circularPath">Circular Path</option>
+            <option value="randomJump">Random Jump</option>
+            <option value="spiral">Spiral</option>
+        </select>
+    </div>
+
+    <!-- New Controls for Camera Speed and Craziness -->
+    <div class="control-group">
+        <label for="cameraSpeed">Camera Speed:</label>
+        <input id="cameraSpeed" max="5" min="0.1" step="0.1" type="range" value="1">
+    </div>
+    <div class="control-group">
+        <label for="cameraCraziness">Camera Craziness:</label>
+        <input id="cameraCraziness" max="1" min="0" step="0.1" type="range" value="0">
+    </div>
+
+
+    <!-- New Shader Effects Group -->
+    <div class="control-group">
+        <label for="glowEffectToggle">Glow Effect:</label>
+        <input id="glowEffectToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="distortionEffectToggle">Distortion Effect:</label>
+        <input id="distortionEffectToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="chromaticAberrationToggle">Chromatic Aberration:</label>
+        <input id="chromaticAberrationToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="motionBlurToggle">Motion Blur:</label>
+        <input id="motionBlurToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="bloomIntensity">Bloom Intensity:</label>
+        <input id="bloomIntensity" max="5" min="0" step="0.1" type="range" value="1">
+    </div>
+
+    <!-- Shader Effects Controls -->
+    <div class="control-group">
+        <label for="filmGrainToggle">Film Grain:</label>
+        <input id="filmGrainToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="filmGrainIntensity">Grain Intensity:</label>
+        <input id="filmGrainIntensity" max="1" min="0" step="0.01" type="range" value="0.35">
+    </div>
+
+    <div class="control-group">
+        <label for="vignetteToggle">Vignette:</label>
+        <input id="vignetteToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="vignetteDarkness">Vignette Darkness:</label>
+        <input id="vignetteDarkness" max="2" min="0" step="0.1" type="range" value="1.2">
+    </div>
+
+    <div class="control-group">
+        <label for="colorCorrectionToggle">Color Correction:</label>
+        <input id="colorCorrectionToggle" type="checkbox">
+    </div>
+
+    <div class="control-group">
+        <label for="hue">Hue:</label>
+        <input id="hue" max="2" min="0" step="0.01" type="range" value="0">
+    </div>
+
+    <div class="control-group">
+        <label for="saturation">Saturation:</label>
+        <input id="saturation" max="2" min="0" step="0.01" type="range" value="1">
+    </div>
+
+    <div class="control-group">
+        <label for="brightness">Brightness:</label>
+        <input id="brightness" max="2" min="0" step="0.01" type="range" value="1">
+    </div>
+
+
+</div>
+
+<canvas id="audioCanvas"></canvas>
+
+<div id="loadingBarContainer">
+    <div id="loadingBar">
+        <div id="loadingBarProgress"></div>
+    </div>
+    <p id="loadingText">Loading...</p>
+</div>
+
+<!-- Including necessary scripts for Three.js controls and tweening animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tween.js/18.6.4/tween.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ShaderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/CopyShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/VignetteShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/FilmShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/shaders/ColorCorrectionShader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/FilmPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/VignettePass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/ColorCorrectionPass.js"></script>
+<script src="visualizer.js"></script>
 </body>
 </html>
