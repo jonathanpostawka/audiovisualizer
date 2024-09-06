@@ -5,7 +5,6 @@ let geometrySelect, bgColorInput, geomColorInput, dynamicsStrengthInput, dynamic
 let positionSensitivityInput, rotationSensitivityInput, scaleSensitivityInput, skewSensitivityInput, twistSensitivityInput, movementPatternSelect;
 let audio, isPlaying = false;
 let composer, renderPass, filmPass, vignettePass, colorCorrectionPass;
-let counter = 0;
 let mediaRecorder;
 let videoQuality = 'high';
 let recordedChunks = [];
@@ -104,115 +103,112 @@ function init() {
     copyPass.renderToScreen = true;
     composer.addPass(copyPass);
 	
-
-    
-
     setupUIControls();
 	setupNewEffectControls();
 	setupParticleControls();
-setupNewEffectControls();
+    setupNewEffectControls();
     createGeometries();
 	createParticleSystem();
 	
     animate();
 }
 function createParticleSystem() {
-  particleGeometry = new THREE.BufferGeometry();
-  const positions = new Float32Array(particleCount * 100);
-  const colors = new Float32Array(particleCount * 100);
+    particleGeometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(particleCount * 100);
+    const colors = new Float32Array(particleCount * 100);
 
-  for (let i = 0; i < particleCount * 100; i += 3) {
-    positions[i] = (Math.random() - 0.5) * 800;
-    positions[i + 1] = (Math.random() - 0.5) * 800;
-    positions[i + 2] = (Math.random() - 0.5) * 800;
+    for (let i = 0; i < particleCount * 100; i += 3) {
+        positions[i] = (Math.random() - 0.5) * 800;
+        positions[i + 1] = (Math.random() - 0.5) * 800;
+        positions[i + 2] = (Math.random() - 0.5) * 800;
 
-    colors[i] = Math.random();
-    colors[i + 1] = Math.random();
-    colors[i + 2] = Math.random();
-  }
+        colors[i] = Math.random();
+        colors[i + 1] = Math.random();
+        colors[i + 2] = Math.random();
+    }
 
-  particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-  particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+    particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
 
-  particleMaterial = new THREE.PointsMaterial({
-    size: particleSize,
-    vertexColors: true,
-    blending: THREE.AdditiveBlending,
-    transparent: true,
-    depthWrite: false,
-    sizeAttenuation: true,
-  });
+    particleMaterial = new THREE.PointsMaterial({
+        size: particleSize,
+        vertexColors: true,
+        blending: THREE.AdditiveBlending,
+        transparent: true,
+        depthWrite: false,
+        sizeAttenuation: true,
+    });
 
-  updateParticleShape(particleShapeSelect.value);
+    updateParticleShape(particleShapeSelect.value);
 
-  particleSystem = new THREE.Points(particleGeometry, particleMaterial);
-  scene.add(particleSystem);
+    particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particleSystem);
 }
 
 function setupParticleControls() {
-  particleToggle = document.getElementById('particlesToggle');
-  particleCountInput = document.getElementById('particleCount');
-  particleShapeSelect = document.getElementById('particleShape');
-  particleSizeInput = document.getElementById('particleSize');
-  particleSpeedInput = document.getElementById('particleSpeed');
-  particleDirectionSelect = document.getElementById('particleDirection');
-  particleMovementSelect = document.getElementById('particleMovement');
+    particleToggle = document.getElementById('particlesToggle');
+    particleCountInput = document.getElementById('particleCount');
+    particleShapeSelect = document.getElementById('particleShape');
+    particleSizeInput = document.getElementById('particleSize');
+    particleSpeedInput = document.getElementById('particleSpeed');
+    particleDirectionSelect = document.getElementById('particleDirection');
+    particleMovementSelect = document.getElementById('particleMovement');
 
-  particleToggle.addEventListener('change', (event) => {
-    particleSystem.visible = event.target.checked;
-  });
+    particleToggle.addEventListener('change', (event) => {
+        particleSystem.visible = event.target.checked;
+    });
 
-  particleCountInput.addEventListener('input', (event) => {
-    particleCount = parseInt(event.target.value);
-    updateParticleSystem();
-  });
+    particleCountInput.addEventListener('input', (event) => {
+        particleCount = parseInt(event.target.value);
+        updateParticleSystem();
+    });
 
-  particleShapeSelect.addEventListener('change', (event) => {
-  updateParticleShape(event.target.value);
-});
+    particleShapeSelect.addEventListener('change', (event) => {
+    updateParticleShape(event.target.value);
+    });
 
-  particleSizeInput.addEventListener('input', (event) => {
-    particleSize = parseFloat(event.target.value);
-    particleMaterial.size = particleSize;
-  });
+    particleSizeInput.addEventListener('input', (event) => {
+        particleSize = parseFloat(event.target.value);
+        particleMaterial.size = particleSize;
+    });
 
-  particleSpeedInput.addEventListener('input', (event) => {
-    particleSpeed = parseFloat(event.target.value);
-  });
+    particleSpeedInput.addEventListener('input', (event) => {
+        particleSpeed = parseFloat(event.target.value);
+    });
 
-  particleDirectionSelect.addEventListener('change', (event) => {
-    particleDirection = event.target.value;
-  });
+    particleDirectionSelect.addEventListener('change', (event) => {
+        particleDirection = event.target.value;
+    });
 
-  particleMovementSelect.addEventListener('change', (event) => {
-    particleMovement = event.target.value;
-  });
+    particleMovementSelect.addEventListener('change', (event) => {
+        particleMovement = event.target.value;
+    });
 }
 
 function updateParticleSystem() {
-  scene.remove(particleSystem);
-  createParticleSystem();
+    scene.remove(particleSystem);
+    createParticleSystem();
 }
 
 function createStarGeometry() {
-  const starGeometry = new THREE.BufferGeometry();
-  const vertices = [];
-  const outerRadius = 0.5;
-  const innerRadius = 0.2;
-  const numPoints = 10;
+    const starGeometry = new THREE.BufferGeometry();
+    const vertices = [];
+    const outerRadius = 0.5;
+    const innerRadius = 0.2;
+    const numPoints = 10;
 
-  for (let i = 0; i < numPoints * 2; i++) {
-    const radius = i % 2 === 0 ? outerRadius : innerRadius;
-    const angle = (i / numPoints) * Math.PI;
-    vertices.push(
-      Math.cos(angle) * radius,
-      Math.sin(angle) * radius,
-      0
-    );
-  }
+    for (let i = 0; i < numPoints * 2; i++) {
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const angle = (i / numPoints) * Math.PI;
+        vertices.push(
+            Math.cos(angle) * radius,
+            Math.sin(angle) * radius,
+            0
+        );
+    }
 
-  starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-  return starGeometry;
+    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+    return starGeometry;
 }
 
 function setupNewEffectControls() {
@@ -245,67 +241,67 @@ function setupNewEffectControls() {
 
 
 function updateParticleShape(shape) {
-  const canvas = document.createElement('canvas');
-  canvas.width = 64;
-  canvas.height = 64;
-  const ctx = canvas.getContext('2d');
-  
-  ctx.fillStyle = '#ffffff';
-  ctx.strokeStyle = '#ffffff';
-  ctx.lineWidth = 2;
-  
-  switch (shape) {
-    case 'square':
-      ctx.fillRect(16, 16, 32, 32);
-      break;
-    case 'triangle':
-      ctx.beginPath();
-      ctx.moveTo(32, 16);
-      ctx.lineTo(16, 48);
-      ctx.lineTo(48, 48);
-      ctx.closePath();
-      ctx.fill();
-      break;
-    case 'star':
-      drawStar(ctx, 32, 32, 5, 16, 8);
-      break;
-    case 'circle':
-    default:
-      ctx.beginPath();
-      ctx.arc(32, 32, 16, 0, Math.PI * 2);
-      ctx.fill();
-      break;
-  }
-  
-  const texture = new THREE.CanvasTexture(canvas);
-  texture.needsUpdate = true;
-  
-  particleMaterial.map = texture;
-  particleMaterial.needsUpdate = true;
+    const canvas = document.createElement('canvas');
+    canvas.width = 64;
+    canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    
+    ctx.fillStyle = '#ffffff';
+    ctx.strokeStyle = '#ffffff';
+    ctx.lineWidth = 2;
+    
+    switch (shape) {
+        case 'square':
+            ctx.fillRect(16, 16, 32, 32);
+            break;
+        case 'triangle':
+            ctx.beginPath();
+            ctx.moveTo(32, 16);
+            ctx.lineTo(16, 48);
+            ctx.lineTo(48, 48);
+            ctx.closePath();
+            ctx.fill();
+            break;
+        case 'star':
+            drawStar(ctx, 32, 32, 5, 16, 8);
+            break;
+        case 'circle':
+        default:
+            ctx.beginPath();
+            ctx.arc(32, 32, 16, 0, Math.PI * 2);
+            ctx.fill();
+            break;
+    }
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    
+    particleMaterial.map = texture;
+    particleMaterial.needsUpdate = true;
 }
 
 function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
-  let rot = Math.PI / 2 * 3;
-  let x = cx;
-  let y = cy;
-  const step = Math.PI / spikes;
+    let rot = Math.PI / 2 * 3;
+    let x = cx;
+    let y = cy;
+    const step = Math.PI / spikes;
 
-  ctx.beginPath();
-  ctx.moveTo(cx, cy - outerRadius);
-  for (let i = 0; i < spikes; i++) {
-    x = cx + Math.cos(rot) * outerRadius;
-    y = cy + Math.sin(rot) * outerRadius;
-    ctx.lineTo(x, y);
-    rot += step;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - outerRadius);
+    for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
 
-    x = cx + Math.cos(rot) * innerRadius;
-    y = cy + Math.sin(rot) * innerRadius;
-    ctx.lineTo(x, y);
-    rot += step;
-  }
-  ctx.lineTo(cx, cy - outerRadius);
-  ctx.closePath();
-  ctx.fill();
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        ctx.lineTo(x, y);
+        rot += step;
+    }
+    ctx.lineTo(cx, cy - outerRadius);
+    ctx.closePath();
+    ctx.fill();
 }
 
 
@@ -590,17 +586,17 @@ function setupUIControls() {
         automateDynamics = event.target.checked;
     });
 	document.addEventListener('DOMContentLoaded', () => {
-     cameraModeSelect = document.getElementById('cameraModeSelect');
+        cameraModeSelect = document.getElementById('cameraModeSelect');
 
-    // Attach event listener to the dropdown
-    cameraModeSelect.addEventListener('change', (event) => {
-        cameraMode = event.target.value;
-        console.log("Selected Camera Mode: ", cameraMode);  // Debugging log
+        // Attach event listener to the dropdown
+        cameraModeSelect.addEventListener('change', (event) => {
+            cameraMode = event.target.value;
+            console.log("Selected Camera Mode: ", cameraMode);  // Debugging log
+        });
+
+        document.getElementById('startRecordingButton').addEventListener('click', startRecording);
+        document.getElementById('stopRecordingButton').addEventListener('click', stopRecording);
     });
-
-	document.getElementById('startRecordingButton').addEventListener('click', startRecording);
-    document.getElementById('stopRecordingButton').addEventListener('click', stopRecording);
-});
 
     geometrySelect.addEventListener('change', createGeometries);
 
@@ -666,8 +662,6 @@ function setupUIControls() {
     cameraCrazinessInput.addEventListener('input', (event) => {
         cameraCraziness = parseFloat(event.target.value);
     });
-
-    
 }
 
 function setupMovementControls() {
@@ -707,13 +701,11 @@ function animate() {
     requestAnimationFrame(animate);
 
     const time = performance.now() * 0.001;
-	
-	
 
     if (analyser) {
         analyser.getByteFrequencyData(dataArray);
         material.uniforms.frequencyData.value = dataArray;
-	if (automateDynamics) {
+	    if (automateDynamics) {
             // Calculate the bass frequencies (usually the first ~32 frequencies in the spectrum)
             let bassSum = 0;
             let bassCount = 32; // Lower frequencies are typically represented in the first part of the array.
@@ -798,7 +790,7 @@ function animate() {
 	animateParticles();
 
     renderer.render(scene, camera);
-	 composer.render();
+	composer.render();
 }
 
 
@@ -845,74 +837,74 @@ function setupNewEffectControls() {
 
 
 function animateParticles() {
-  if (!particleSystem.visible) return;
+    if (!particleSystem.visible) return;
 
-  const positions = particleGeometry.attributes.position.array;
+    const positions = particleGeometry.attributes.position.array;
 
-  for (let i = 0; i < positions.length; i += 3) {
-    const x = positions[i];
-    const y = positions[i + 1];
-    const z = positions[i + 2];
+    for (let i = 0; i < positions.length; i += 3) {
+        const x = positions[i];
+        const y = positions[i + 1];
+        const z = positions[i + 2];
 
-    let dx, dy, dz;
+        let dx, dy, dz;
 
-    switch (particleDirection) {
-      case 'outward':
-        dx = x * particleSpeed * 0.01;
-        dy = y * particleSpeed * 0.01;
-        dz = z * particleSpeed * 0.01;
-        break;
-      case 'inward':
-        dx = -x * particleSpeed * 0.01;
-        dy = -y * particleSpeed * 0.01;
-        dz = -z * particleSpeed * 0.01;
-        break;
-      case 'upward':
-        dy = particleSpeed * 0.1;
-        dx = dz = 0;
-        break;
-      case 'downward':
-        dy = -particleSpeed * 0.1;
-        dx = dz = 0;
-        break;
-      case 'random':
-        dx = (Math.random() - 0.5) * particleSpeed * 0.1;
-        dy = (Math.random() - 0.5) * particleSpeed * 0.1;
-        dz = (Math.random() - 0.5) * particleSpeed * 0.1;
-        break;
+        switch (particleDirection) {
+            case 'outward':
+                dx = x * particleSpeed * 0.01;
+                dy = y * particleSpeed * 0.01;
+                dz = z * particleSpeed * 0.01;
+                break;
+            case 'inward':
+                dx = -x * particleSpeed * 0.01;
+                dy = -y * particleSpeed * 0.01;
+                dz = -z * particleSpeed * 0.01;
+                break;
+            case 'upward':
+                dy = particleSpeed * 0.1;
+                dx = dz = 0;
+                break;
+            case 'downward':
+                dy = -particleSpeed * 0.1;
+                dx = dz = 0;
+                break;
+            case 'random':
+                dx = (Math.random() - 0.5) * particleSpeed * 0.1;
+                dy = (Math.random() - 0.5) * particleSpeed * 0.1;
+                dz = (Math.random() - 0.5) * particleSpeed * 0.1;
+                break;
+        }
+
+        switch (particleMovement) {
+            case 'linear':
+                positions[i] += dx;
+                positions[i + 1] += dy;
+                positions[i + 2] += dz;
+                break;
+            case 'circular':
+                const angle = particleSpeed * 0.02;
+                const newX = x * Math.cos(angle) - z * Math.sin(angle);
+                const newZ = x * Math.sin(angle) + z * Math.cos(angle);
+                positions[i] = newX;
+                positions[i + 2] = newZ;
+                break;
+            case 'spiral':
+                const spiralAngle = particleSpeed * 0.02;
+                const radius = Math.sqrt(x * x + z * z);
+                positions[i] = radius * Math.cos(spiralAngle);
+                positions[i + 1] += dy;
+                positions[i + 2] = radius * Math.sin(spiralAngle);
+                break;
+        }
+
+        // Reset particles that go out of bounds
+        if (Math.abs(positions[i]) > 5000 || Math.abs(positions[i + 1]) > 5000 || Math.abs(positions[i + 2]) > 5000) {
+            positions[i] = (Math.random() - 0.5) * 1200;
+            positions[i + 1] = (Math.random() - 0.5) * 1200;
+            positions[i + 2] = (Math.random() - 0.5) * 1200;
+        }
     }
 
-    switch (particleMovement) {
-      case 'linear':
-        positions[i] += dx;
-        positions[i + 1] += dy;
-        positions[i + 2] += dz;
-        break;
-      case 'circular':
-        const angle = particleSpeed * 0.02;
-        const newX = x * Math.cos(angle) - z * Math.sin(angle);
-        const newZ = x * Math.sin(angle) + z * Math.cos(angle);
-        positions[i] = newX;
-        positions[i + 2] = newZ;
-        break;
-      case 'spiral':
-        const spiralAngle = particleSpeed * 0.02;
-        const radius = Math.sqrt(x * x + z * z);
-        positions[i] = radius * Math.cos(spiralAngle);
-        positions[i + 1] += dy;
-        positions[i + 2] = radius * Math.sin(spiralAngle);
-        break;
-    }
-
-    // Reset particles that go out of bounds
-    if (Math.abs(positions[i]) > 5000 || Math.abs(positions[i + 1]) > 5000 || Math.abs(positions[i + 2]) > 5000) {
-      positions[i] = (Math.random() - 0.5) * 1200;
-      positions[i + 1] = (Math.random() - 0.5) * 1200;
-      positions[i + 2] = (Math.random() - 0.5) * 1200;
-    }
-  }
-
-  particleGeometry.attributes.position.needsUpdate = true;
+    particleGeometry.attributes.position.needsUpdate = true;
 }
 
 function automateColors(time) {
@@ -954,24 +946,24 @@ function automateColors(time) {
 
 
 function updateCameraMovement(time) {
-const mainGeometryPosition = geometries.length > 0 ? geometries[0].position : new THREE.Vector3(0, 0, 0);
+    const mainGeometryPosition = geometries.length > 0 ? geometries[0].position : new THREE.Vector3(0, 0, 0);
 	if (!automateCamera && wasAutomateCameraEnabled) {
         // If autofocus is turned off, do not update the camera position
-	camera.lookAt(mainGeometryPosition);
-	wasAutomateCameraEnabled = false;
+        camera.lookAt(mainGeometryPosition);
+        wasAutomateCameraEnabled = false;
         return;
     }
-if (automateCamera) {
+    if (automateCamera) {
         const angle = time * cameraSpeed;
         const crazinessFactor = cameraCraziness * 10;
 
-	const targetGeometryIndex = Math.floor(time % geometries.length);
+    	const targetGeometryIndex = Math.floor(time % geometries.length);
         const targetGeometryPosition = geometries.length > 0 ? geometries[targetGeometryIndex].position : mainGeometryPosition;
 
         // Set the camera position to orbit around the main geometry
         // Calculate the camera's X, Y, Z position for a more complex path
         const radiusOffset = Math.sin(angle * 0.5) * 250;  // Adds variation in distance
-	switch (cameraMode) {
+        switch (cameraMode) {
             case 'fixedRotation':
                 // Camera rotates around the object without changing position
                 camera.position.x = targetGeometryPosition.x + 50;
@@ -1008,33 +1000,18 @@ if (automateCamera) {
                 break;
 
             case 'normal':
-            
-        camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset) + Math.sin(angle * 1.5) * crazinessFactor;
-        camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset) + Math.cos(angle * 1.5) * crazinessFactor;
-        camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.5) * crazinessFactor ;
-
-	// Make the camera occasionally dive through the geometry
-	if (Math.sin(time) > 0.9 && counter < 4) {
-		count();
-	}
-        if (Math.sin(time) > 0.9 && counter == 4) {
-            camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.8) * 5.5;  // Dive
+                camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset) + Math.sin(angle * 1.5) * crazinessFactor;
+                camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset) + Math.cos(angle * 1.5) * crazinessFactor;
+                camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.5) * crazinessFactor ;
+                break;
         }
-	break;
-	}
+
         // Make the camera always look at the main geometry
         camera.lookAt(targetGeometryPosition);
 
         // Update the flag to track that autofocus is enabled
         wasAutomateCameraEnabled = true;
-	
     }
-}
-function count(){
- counter++;
- if(counter>=4){
-	counter = 0;
-}
 }
 
 function onWindowResize() {
@@ -1074,8 +1051,8 @@ function startRecording() {
         ...canvasStream.getVideoTracks(),
         ...audioStream.getAudioTracks()
     ]);
-	 recordedChunks = [];
-let options;
+    recordedChunks = [];
+    let options;
     switch (videoQuality) {
         case 'low':
             options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 500000 };
@@ -1111,7 +1088,7 @@ let options;
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }, 100);
-	// Reset mediaRecorder after stopping the recording
+	    // Reset mediaRecorder after stopping the recording
         mediaRecorder = null;
     };
 
