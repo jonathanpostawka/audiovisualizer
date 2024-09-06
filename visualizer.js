@@ -11,15 +11,13 @@ let recordedChunks = [];
 let recording = false;
 let light1, light2;
 let dynamicsStrength = 1, dynamicsIntensity = 1, randomize = false, masterEffectStrength = 1, lightRotationSpeed = 0.1;
-let geometryCount = 1, organicMovement = false;
+let geometryCount = 1;
 let cameraRadius = 10;
-let cameraAngle = 0;
 let automateCamera = false;
 let cameraSpeed = 1, cameraCraziness = 0;
 let cameraModeSelect;
 let cameraMode = 'normal';
-let cameraHeightOffset = 0;
-let particles, particleSystem, particleGeometry, particleMaterial;
+let particleSystem, particleGeometry, particleMaterial;
 let particleToggle, particleCountInput, particleShapeSelect, particleSizeInput, particleSpeedInput, particleDirectionSelect, particleMovementSelect;
 let particleCount = 5000;
 let particleSize = 1;
@@ -37,7 +35,6 @@ let movementSensitivity = {
     twist: 0.5
 };
 let movementPattern = 'oscillation';
-let glowEffectToggle, distortionEffectToggle, chromaticAberrationToggle, motionBlurToggle, bloomIntensityInput;
 
 function init() {
     scene = new THREE.Scene();
@@ -189,57 +186,6 @@ function updateParticleSystem() {
     scene.remove(particleSystem);
     createParticleSystem();
 }
-
-function createStarGeometry() {
-    const starGeometry = new THREE.BufferGeometry();
-    const vertices = [];
-    const outerRadius = 0.5;
-    const innerRadius = 0.2;
-    const numPoints = 10;
-
-    for (let i = 0; i < numPoints * 2; i++) {
-        const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        const angle = (i / numPoints) * Math.PI;
-        vertices.push(
-            Math.cos(angle) * radius,
-            Math.sin(angle) * radius,
-            0
-        );
-    }
-
-    starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-    return starGeometry;
-}
-
-function setupNewEffectControls() {
-    glowEffectToggle = document.getElementById('glowEffectToggle');
-    distortionEffectToggle = document.getElementById('distortionEffectToggle');
-    chromaticAberrationToggle = document.getElementById('chromaticAberrationToggle');
-    motionBlurToggle = document.getElementById('motionBlurToggle');
-    bloomIntensityInput = document.getElementById('bloomIntensity');
-
-    glowEffectToggle.addEventListener('change', (event) => {
-        material.uniforms.glowEnabled.value = event.target.checked;
-    });
-
-    distortionEffectToggle.addEventListener('change', (event) => {
-        material.uniforms.distortionEnabled.value = event.target.checked;
-    });
-
-    chromaticAberrationToggle.addEventListener('change', (event) => {
-        material.uniforms.chromaticAberrationEnabled.value = event.target.checked;
-    });
-
-    motionBlurToggle.addEventListener('change', (event) => {
-        material.uniforms.motionBlurEnabled.value = event.target.checked;
-    });
-
-    bloomIntensityInput.addEventListener('input', (event) => {
-        material.uniforms.bloomIntensity.value = parseFloat(event.target.value);
-    });
-}
-
-
 function updateParticleShape(shape) {
     const canvas = document.createElement('canvas');
     canvas.width = 64;
