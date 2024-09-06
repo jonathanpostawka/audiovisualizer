@@ -38,12 +38,12 @@ let movementPattern = 'oscillation';
 
 function init() {
     scene = new THREE.Scene();
-	// Add the event listener for the camera mode dropdown
+    // Add the event listener for the camera mode dropdown
 
     camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
     camera.position.z = cameraRadius;
 
-    renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('audioCanvas'), antialias: true });
+    renderer = new THREE.WebGLRenderer({canvas: document.getElementById('audioCanvas'), antialias: true});
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setClearColor(0x000000);
 
@@ -70,8 +70,8 @@ function init() {
     controls.update();
 
     window.addEventListener('resize', onWindowResize, false);
-	
-	// Create the composer for postprocessing
+
+    // Create the composer for postprocessing
     composer = new THREE.EffectComposer(renderer);
 
     // Add the render pass
@@ -99,16 +99,17 @@ function init() {
     const copyPass = new THREE.ShaderPass(THREE.CopyShader);
     copyPass.renderToScreen = true;
     composer.addPass(copyPass);
-	
+
     setupUIControls();
-	setupNewEffectControls();
-	setupParticleControls();
+    setupNewEffectControls();
+    setupParticleControls();
     setupNewEffectControls();
     createGeometries();
-	createParticleSystem();
-	
+    createParticleSystem();
+
     animate();
 }
+
 function createParticleSystem() {
     particleGeometry = new THREE.BufferGeometry();
     const positions = new Float32Array(particleCount * 100);
@@ -161,7 +162,7 @@ function setupParticleControls() {
     });
 
     particleShapeSelect.addEventListener('change', (event) => {
-    updateParticleShape(event.target.value);
+        updateParticleShape(event.target.value);
     });
 
     particleSizeInput.addEventListener('input', (event) => {
@@ -186,16 +187,17 @@ function updateParticleSystem() {
     scene.remove(particleSystem);
     createParticleSystem();
 }
+
 function updateParticleShape(shape) {
     const canvas = document.createElement('canvas');
     canvas.width = 64;
     canvas.height = 64;
     const ctx = canvas.getContext('2d');
-    
+
     ctx.fillStyle = '#ffffff';
     ctx.strokeStyle = '#ffffff';
     ctx.lineWidth = 2;
-    
+
     switch (shape) {
         case 'square':
             ctx.fillRect(16, 16, 32, 32);
@@ -218,10 +220,10 @@ function updateParticleShape(shape) {
             ctx.fill();
             break;
     }
-    
+
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
-    
+
     particleMaterial.map = texture;
     particleMaterial.needsUpdate = true;
 }
@@ -254,24 +256,24 @@ function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
 function createMaterial() {
     return new THREE.ShaderMaterial({
         uniforms: {
-            time: { value: 1.0 },
-            color: { value: new THREE.Color(0xffffff) },
-            frequencyData: { value: new Uint8Array(256) },
-            dynamicsStrength: { value: dynamicsStrength },
-            dynamicsIntensity: { value: dynamicsIntensity },
-            randomize: { value: randomize },
-            masterEffectStrength: { value: masterEffectStrength },
-            light1Position: { value: light1.position },
-            light2Position: { value: light2.position },
-            light1Color: { value: new THREE.Color("#ffffff") },
-            light2Color: { value: new THREE.Color("#ffffff") },
-            roughness: { value: 0.5 },
-            metalness: { value: 0.5 },
-            transparency: { value: 1.0 },
-            wireframe: { value: false },
-	    glowEnabled: { value: false }, // Default off
-            chromaticAberrationEnabled: { value: false }, // Default off
-            bloomIntensity: { value: 1.0 } // Default intensity
+            time: {value: 1.0},
+            color: {value: new THREE.Color(0xffffff)},
+            frequencyData: {value: new Uint8Array(256)},
+            dynamicsStrength: {value: dynamicsStrength},
+            dynamicsIntensity: {value: dynamicsIntensity},
+            randomize: {value: randomize},
+            masterEffectStrength: {value: masterEffectStrength},
+            light1Position: {value: light1.position},
+            light2Position: {value: light2.position},
+            light1Color: {value: new THREE.Color("#ffffff")},
+            light2Color: {value: new THREE.Color("#ffffff")},
+            roughness: {value: 0.5},
+            metalness: {value: 0.5},
+            transparency: {value: 1.0},
+            wireframe: {value: false},
+            glowEnabled: {value: false}, // Default off
+            chromaticAberrationEnabled: {value: false}, // Default off
+            bloomIntensity: {value: 1.0} // Default intensity
         },
         vertexShader: `
     uniform float time;
@@ -430,7 +432,7 @@ function getGeometry(type) {
                 const radius = i % 2 === 0 ? 1 : 0.5;
                 starShape.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
             }
-            return new THREE.ExtrudeGeometry(starShape, { depth: 0.5, bevelEnabled: false });
+            return new THREE.ExtrudeGeometry(starShape, {depth: 0.5, bevelEnabled: false});
         case 'torusKnot':
             return new THREE.TorusKnotGeometry(1, 0.4, 100, 16);
         case 'boxLine':
@@ -442,7 +444,7 @@ function getGeometry(type) {
             heartShape.bezierCurveTo(1, -0.5, 0.5, -0.75, 0, -1);
             heartShape.bezierCurveTo(-0.5, -0.75, -1, -0.5, -1, 0);
             heartShape.bezierCurveTo(-1, 0.5, -0.5, 0.75, 0, 0.75);
-            return new THREE.ExtrudeGeometry(heartShape, { depth: 0.5, bevelEnabled: false });
+            return new THREE.ExtrudeGeometry(heartShape, {depth: 0.5, bevelEnabled: false});
         case 'arrow':
             return new THREE.ConeGeometry(1, 2, 8);
         case 'gear':
@@ -531,7 +533,7 @@ function setupUIControls() {
     dynamicAutoToggle.addEventListener('change', (event) => {
         automateDynamics = event.target.checked;
     });
-	document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', () => {
         cameraModeSelect = document.getElementById('cameraModeSelect');
 
         // Attach event listener to the dropdown
@@ -651,7 +653,7 @@ function animate() {
     if (analyser) {
         analyser.getByteFrequencyData(dataArray);
         material.uniforms.frequencyData.value = dataArray;
-	    if (automateDynamics) {
+        if (automateDynamics) {
             // Calculate the bass frequencies (usually the first ~32 frequencies in the spectrum)
             let bassSum = 0;
             let bassCount = 32; // Lower frequencies are typically represented in the first part of the array.
@@ -659,7 +661,7 @@ function animate() {
                 bassSum += dataArray[i];
             }
             let averageBass = bassSum / bassCount;
-            
+
             // Normalize the bass value (0 to 1)
             let normalizedBass = averageBass / 255;
 
@@ -670,7 +672,6 @@ function animate() {
             // Update the material to reflect the new dynamics values
             material.uniforms.dynamicsStrength.value = dynamicsStrength;
             material.uniforms.dynamicsIntensity.value = dynamicsIntensity;
-	    
         }
     }
 
@@ -724,19 +725,18 @@ function animate() {
 
     controls.update();
 
-    
+
     updateCameraMovement(time);
 
     automateColors(time);
 
-    
 
     material.uniforms.time.value += 0.05;
 
-	animateParticles();
+    animateParticles();
 
     renderer.render(scene, camera);
-	composer.render();
+    composer.render();
 }
 
 
@@ -890,10 +890,9 @@ function automateColors(time) {
 }
 
 
-
 function updateCameraMovement(time) {
     const mainGeometryPosition = geometries.length > 0 ? geometries[0].position : new THREE.Vector3(0, 0, 0);
-	if (!automateCamera && wasAutomateCameraEnabled) {
+    if (!automateCamera && wasAutomateCameraEnabled) {
         // If autofocus is turned off, do not update the camera position
         camera.lookAt(mainGeometryPosition);
         wasAutomateCameraEnabled = false;
@@ -903,7 +902,7 @@ function updateCameraMovement(time) {
         const angle = time * cameraSpeed;
         const crazinessFactor = cameraCraziness * 10;
 
-    	const targetGeometryIndex = Math.floor(time % geometries.length);
+        const targetGeometryIndex = Math.floor(time % geometries.length);
         const targetGeometryPosition = geometries.length > 0 ? geometries[targetGeometryIndex].position : mainGeometryPosition;
 
         // Set the camera position to orbit around the main geometry
@@ -948,7 +947,7 @@ function updateCameraMovement(time) {
             case 'normal':
                 camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset) + Math.sin(angle * 1.5) * crazinessFactor;
                 camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset) + Math.cos(angle * 1.5) * crazinessFactor;
-                camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.5) * crazinessFactor ;
+                camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.5) * crazinessFactor;
                 break;
         }
 
@@ -1001,25 +1000,25 @@ function startRecording() {
     let options;
     switch (videoQuality) {
         case 'low':
-            options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 500000 };
+            options = {mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 500000};
             break;
         case 'medium':
-            options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 2500000 };
+            options = {mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 2500000};
             break;
         case 'high':
         default:
-            options = { mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 5000000 };
+            options = {mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 5000000};
             break;
     }
     mediaRecorder = new MediaRecorder(combinedStream, options);
 
-    mediaRecorder.ondataavailable = function(event) {
+    mediaRecorder.ondataavailable = function (event) {
         if (event.data.size > 0) {
             recordedChunks.push(event.data);
         }
     };
 
-    mediaRecorder.onstop = function() {
+    mediaRecorder.onstop = function () {
         const blob = new Blob(recordedChunks, {
             type: 'video/webm'
         });
@@ -1034,7 +1033,7 @@ function startRecording() {
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }, 100);
-	    // Reset mediaRecorder after stopping the recording
+        // Reset mediaRecorder after stopping the recording
         mediaRecorder = null;
     };
 
@@ -1049,12 +1048,12 @@ function stopRecording() {
     }
 }
 
-document.getElementById('fileInput').addEventListener('change', function() {
+document.getElementById('fileInput').addEventListener('change', function () {
     const file = this.files[0];
     audio = new Audio(URL.createObjectURL(file));
     audioContext = new (window.AudioContext || window.webkitAudioContext)();
     source = audioContext.createMediaElementSource(audio);
-    
+
     analyser = audioContext.createAnalyser();
     analyser.fftSize = 256;
     dataArray = new Uint8Array(analyser.frequencyBinCount);
