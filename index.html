@@ -1,65 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link rel="stylesheet" href="styles.css">
     <title>Audio Visualizer</title>
-    <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            font-family: Arial, sans-serif;
-            background-color: #000;
-        }
-
-        #controls {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 100;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            max-height: 90vh; /* Set maximum height for the control panel */
-            overflow-y: auto; /* Enable vertical scrolling */
-            width: 250px; /* You can adjust the width if necessary */
-        }
-
-        .control-group {
-            margin-bottom: 10px;
-        }
-
-        canvas {
-            display: block;
-        }
-
-        #loadingBarContainer {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: none;
-        }
-
-        #loadingBar {
-            width: 300px;
-            height: 10px;
-            background-color: #f3f3f3;
-            margin-bottom: 5px;
-        }
-
-        #loadingBarProgress {
-            height: 100%;
-            width: 0%;
-            background-color: #4caf50;
-        }
-
-        #audioCanvas {
-            width: 100vw;
-            height: 100vh;
-        }
-    </style>
 </head>
+
 <body>
 <div id="controls">
     <div class="control-group">
@@ -72,6 +20,7 @@
         <button id="startRecordingButton">Start Recording</button>
         <button id="stopRecordingButton">Stop Recording</button>
     </div>
+
     <div class="control-group">
         <label for="videoQualitySelect">Video Quality:</label>
         <select id="videoQualitySelect">
@@ -81,7 +30,6 @@
         </select>
     </div>
 
-    <!-- Add this inside the #controls div -->
     <div class="control-group">
         <label for="particlesToggle">Particles:</label>
         <input id="particlesToggle" type="checkbox">
@@ -131,6 +79,7 @@
             <option value="spiral">Spiral</option>
         </select>
     </div>
+
     <div class="control-group">
         <label for="geometrySelect">Geometry:</label>
         <select id="geometrySelect">
@@ -156,10 +105,12 @@
             <option value="gear">Gear</option>
         </select>
     </div>
+
     <div class="control-group">
         <label for="geometryCount">Geometry Count:</label>
         <input id="geometryCount" max="50" min="1" type="number" value="1">
     </div>
+
     <div class="control-group">
         <label for="bgColor">Background Color:</label>
         <input id="bgColor" type="color" value="#000000">
@@ -169,6 +120,7 @@
             <option value="strobo">Strobo</option>
         </select>
     </div>
+
     <div class="control-group">
         <label for="geomColor">Geometry Color:</label>
         <input id="geomColor" type="color" value="#ffffff">
@@ -178,10 +130,12 @@
             <option value="strobo">Strobo</option>
         </select>
     </div>
+
     <div class="control-group">
         <label for="dynamicsStrength">Dynamics Strength:</label>
         <input id="dynamicsStrength" max="5" min="0" step="0.1" type="range" value="1">
     </div>
+
     <div class="control-group">
         <label for="dynamicsIntensity">Dynamics Intensity:</label>
         <input id="dynamicsIntensity" max="5" min="0" step="0.1" type="range" value="1">
@@ -226,22 +180,27 @@
             <option value="none">None</option>
         </select>
     </div>
+
     <div class="control-group">
         <label for="randomize">Randomize Movement:</label>
         <input id="randomize" type="checkbox">
     </div>
+
     <div class="control-group">
         <label for="light1Color">Light 1 Color:</label>
         <input id="light1Color" type="color" value="#ffffff">
     </div>
+
     <div class="control-group">
         <label for="light2Color">Light 2 Color:</label>
         <input id="light2Color" type="color" value="#ffffff">
     </div>
+
     <div class="control-group">
         <label for="lightRotationSpeed">Light Rotation Speed:</label>
         <input id="lightRotationSpeed" max="1" min="0" step="0.01" type="range" value="0.1">
     </div>
+
     <div class="control-group">
         <label for="surfaceType">Surface Type:</label>
         <select id="surfaceType">
@@ -254,16 +213,17 @@
             <option value="fluid">Fluid</option>
         </select>
     </div>
+
     <div class="control-group">
         <label for="masterEffectStrength">Master Effect Strength:</label>
         <input id="masterEffectStrength" max="5" min="0" step="0.1" type="range" value="1">
     </div>
+
     <div class="control-group">
         <label for="stroboColor">Strobo Color:</label>
         <input id="stroboColor" type="color" value="#ff00ff">
     </div>
 
-    <!-- Automate Camera Movement -->
     <div class="control-group">
         <label for="automateCamera">Automate Camera:</label>
         <input id="automateCamera" type="checkbox">
@@ -281,18 +241,16 @@
         </select>
     </div>
 
-    <!-- New Controls for Camera Speed and Craziness -->
     <div class="control-group">
         <label for="cameraSpeed">Camera Speed:</label>
         <input id="cameraSpeed" max="5" min="0.1" step="0.1" type="range" value="1">
     </div>
+
     <div class="control-group">
         <label for="cameraCraziness">Camera Craziness:</label>
         <input id="cameraCraziness" max="1" min="0" step="0.1" type="range" value="0">
     </div>
 
-
-    <!-- New Shader Effects Group -->
     <div class="control-group">
         <label for="glowEffectToggle">Glow Effect:</label>
         <input id="glowEffectToggle" type="checkbox">
@@ -318,7 +276,6 @@
         <input id="bloomIntensity" max="5" min="0" step="0.1" type="range" value="1">
     </div>
 
-    <!-- Shader Effects Controls -->
     <div class="control-group">
         <label for="filmGrainToggle">Film Grain:</label>
         <input id="filmGrainToggle" type="checkbox">
@@ -358,8 +315,6 @@
         <label for="brightness">Brightness:</label>
         <input id="brightness" max="2" min="0" step="0.01" type="range" value="1">
     </div>
-
-
 </div>
 
 <canvas id="audioCanvas"></canvas>
