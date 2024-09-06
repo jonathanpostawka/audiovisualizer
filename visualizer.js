@@ -252,7 +252,6 @@ function drawStar(ctx, cx, cy, spikes, outerRadius, innerRadius) {
     ctx.fill();
 }
 
-
 function createMaterial() {
     return new THREE.ShaderMaterial({
         uniforms: {
@@ -739,7 +738,6 @@ function animate() {
     composer.render();
 }
 
-
 function setupNewEffectControls() {
     const glowEffectToggle = document.getElementById('glowEffectToggle');
     const distortionEffectToggle = document.getElementById('distortionEffectToggle');
@@ -805,7 +803,6 @@ function setupNewEffectControls() {
         colorCorrectionPass.uniforms.mulRGB.value.z = parseFloat(event.target.value);
     });
 }
-
 
 function animateParticles() {
     if (!particleSystem.visible) return;
@@ -914,74 +911,73 @@ function automateColors(time) {
     }
 }
 
-
 function updateCameraMovement(time) {
     const mainGeometryPosition = geometries.length > 0 ? geometries[0].position : new THREE.Vector3(0, 0, 0);
-    if (!automateCamera && wasAutomateCameraEnabled) {
-        // If autofocus is turned off, do not update the camera position
-        camera.lookAt(mainGeometryPosition);
-        wasAutomateCameraEnabled = false;
+    if (!automateCamera) {
+        if (wasAutomateCameraEnabled) {
+            // If autofocus is turned off, do not update the camera position
+            camera.lookAt(mainGeometryPosition);
+            wasAutomateCameraEnabled = false;
+        }
         return;
     }
-    if (automateCamera) {
-        const angle = time * cameraSpeed;
-        const crazinessFactor = cameraCraziness * 10;
+    const angle = time * cameraSpeed;
+    const crazinessFactor = cameraCraziness * 10;
 
-        const targetGeometryIndex = Math.floor(time % geometries.length);
-        const targetGeometryPosition = geometries.length > 0 ? geometries[targetGeometryIndex].position : mainGeometryPosition;
+    const targetGeometryIndex = Math.floor(time % geometries.length);
+    const targetGeometryPosition = geometries.length > 0 ? geometries[targetGeometryIndex].position : mainGeometryPosition;
 
-        // Set the camera position to orbit around the main geometry
-        // Calculate the camera's X, Y, Z position for a more complex path
-        const radiusOffset = Math.sin(angle * 0.5) * 250;  // Adds variation in distance
-        switch (cameraMode) {
-            case 'fixedRotation':
-                // Camera rotates around the object without changing position
-                camera.position.x = targetGeometryPosition.x + 50;
-                camera.position.y = targetGeometryPosition.y + 50;
-                camera.position.z = targetGeometryPosition.z;
-                break;
+    // Set the camera position to orbit around the main geometry
+    // Calculate the camera's X, Y, Z position for a more complex path
+    const radiusOffset = Math.sin(angle * 0.5) * 250;  // Adds variation in distance
+    switch (cameraMode) {
+        case 'fixedRotation':
+            // Camera rotates around the object without changing position
+            camera.position.x = targetGeometryPosition.x + 50;
+            camera.position.y = targetGeometryPosition.y + 50;
+            camera.position.z = targetGeometryPosition.z;
+            break;
 
-            case 'zoomInOut':
-                // Camera zooms in and out while focusing on the object
-                camera.position.z = targetGeometryPosition.z + (cameraRadius + radiusOffset) + Math.sin(angle) * 10;
-                break;
+        case 'zoomInOut':
+            // Camera zooms in and out while focusing on the object
+            camera.position.z = targetGeometryPosition.z + (cameraRadius + radiusOffset) + Math.sin(angle) * 10;
+            break;
 
-            case 'circularPath':
-                // Camera moves in a perfect circular orbit around the object
-                camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset);
-                camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset);
-                camera.position.y = targetGeometryPosition.y;
-                break;
+        case 'circularPath':
+            // Camera moves in a perfect circular orbit around the object
+            camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset);
+            camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset);
+            camera.position.y = targetGeometryPosition.y;
+            break;
 
-            case 'randomJump':
-                // Camera moves to random positions around the object
-                if (Math.random() > 0.95) {
-                    camera.position.x = targetGeometryPosition.x + (Math.random() - 0.5) * 100;
-                    camera.position.y = targetGeometryPosition.y + (Math.random() - 0.5) * 100;
-                    camera.position.z = targetGeometryPosition.z + (Math.random() - 0.5) * 100;
-                }
-                break;
+        case 'randomJump':
+            // Camera moves to random positions around the object
+            if (Math.random() > 0.95) {
+                camera.position.x = targetGeometryPosition.x + (Math.random() - 0.5) * 100;
+                camera.position.y = targetGeometryPosition.y + (Math.random() - 0.5) * 100;
+                camera.position.z = targetGeometryPosition.z + (Math.random() - 0.5) * 100;
+            }
+            break;
 
-            case 'spiral':
-                // Camera spirals in towards or out from the object
-                camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset);
-                camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset);
-                camera.position.y += 1;  // Gradually spirals upwards
-                break;
+        case 'spiral':
+            // Camera spirals in towards or out from the object
+            camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset);
+            camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset);
+            camera.position.y += 1;  // Gradually spirals upwards
+            break;
 
-            case 'normal':
-                camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset) + Math.sin(angle * 1.5) * crazinessFactor;
-                camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset) + Math.cos(angle * 1.5) * crazinessFactor;
-                camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.5) * crazinessFactor;
-                break;
-        }
-
-        // Make the camera always look at the main geometry
-        camera.lookAt(targetGeometryPosition);
-
-        // Update the flag to track that autofocus is enabled
-        wasAutomateCameraEnabled = true;
+        case 'normal':
+            camera.position.x = targetGeometryPosition.x + Math.sin(angle) * (cameraRadius + radiusOffset) + Math.sin(angle * 1.5) * crazinessFactor;
+            camera.position.z = targetGeometryPosition.z + Math.cos(angle) * (cameraRadius + radiusOffset) + Math.cos(angle * 1.5) * crazinessFactor;
+            camera.position.y = targetGeometryPosition.y + Math.sin(angle * 0.5) * crazinessFactor;
+            break;
     }
+
+    // Make the camera always look at the main geometry
+    camera.lookAt(targetGeometryPosition);
+
+    // Update the flag to track that autofocus is enabled
+    wasAutomateCameraEnabled = true;
 }
 
 function onWindowResize() {
