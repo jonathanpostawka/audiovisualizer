@@ -1,15 +1,16 @@
-@import url('https://fonts.googleapis.com/css?family=PT%20Mono:700|PT%20Mono:400');
+@import url('https://fonts.googleapis.com/css?family=Kode%20Mono:700|Kode%20Mono:400');
 
 :root {
-    --text: 237, 228, 238;
-    --background: 22, 11, 22;
-    --primary: 216, 151, 221;
-    --secondary: 121, 27, 128;
-    --accent: 217, 42, 230;
+    --text: 230, 231, 252;
+    --background: 3, 5, 32;
+    --primary: 134, 149, 242;
+    --secondary: 159, 17, 116;
+    --accent: 231, 32, 72;
 }
 
+
 body {
-    font-family: 'PT Mono', sans-serif;
+    font-family: 'Kode Mono', sans-serif;
     font-weight: 400;
     background-color: rgb(var(--background));
     color: rgb(var(--text));
@@ -17,7 +18,7 @@ body {
 }
 
 h1, h2, h3, h4, h5 {
-    font-family: 'PT Mono', sans-serif;
+    font-family: 'Kode Mono', sans-serif;
     font-weight: 700;
     color: rgb(var(--text));
 }
@@ -44,9 +45,9 @@ small {font-size: 0.750rem; /* 12px */}
     top: 5vh;
     left: -2em;
     padding-left: 2em;
-    background: rgba(var(--background), .8);
-    border: 1px solid rgb(var(--accent));
-    box-shadow: 0 0 2em rgb(var(--accent));
+    background: rgb(var(--background), .8);
+    border: 1px solid rgb(var(--secondary));
+    box-shadow: 0 0 2em rgb(var(--secondary));
     border-radius: 2em;
     position: absolute;
     backdrop-filter: blur(1em);
@@ -58,17 +59,29 @@ small {font-size: 0.750rem; /* 12px */}
     flex-direction: column;
     max-width: 24em;
     height: 100%;
+
+    button, input, select {
+        color: rgb(var(--background));
+        background: rgb(var(--primary));
+        border: none;
+        border-radius: 1em;
+        padding: .7em;
+        margin: .4em;
+    }
+    button:hover, input:hover, select:hover {
+        box-shadow: 0 0 1em rgb(var(--accent));
+    }
 }
 
 .sidebar-collapse {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 1em;
+    width: 2em;
     height: 100%;
 }
 .sidebar-collapse:hover {
-    background: linear-gradient(to left, rgb(var(--accent), .4), rgb(var(--accent), .1));
+    background: linear-gradient(to left, rgb(var(--accent), .4), rgb(var(--accent), 0));
 }
 
 .playback-settings {
@@ -81,6 +94,7 @@ small {font-size: 0.750rem; /* 12px */}
 
     .settings-item {
         display: flex;
+        align-items: center;
         justify-content: space-between;
         margin-bottom: 1em;
     }
@@ -110,7 +124,7 @@ canvas {
 
 #loadingBarProgress {
     height: 100%;
-    width: 0%;
+    width: 0;
     background-color: #4caf50;
 }
 
