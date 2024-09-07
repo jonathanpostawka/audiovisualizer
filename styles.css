@@ -1,25 +1,92 @@
+@import url('https://fonts.googleapis.com/css?family=PT%20Mono:700|PT%20Mono:400');
+
+:root {
+    --text: 237, 228, 238;
+    --background: 22, 11, 22;
+    --primary: 216, 151, 221;
+    --secondary: 121, 27, 128;
+    --accent: 217, 42, 230;
+}
+
 body {
+    font-family: 'PT Mono', sans-serif;
+    font-weight: 400;
+    background-color: rgb(var(--background));
+    color: rgb(var(--text));
     margin: 0;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    background-color: #000;
 }
 
-#controls {
+h1, h2, h3, h4, h5 {
+    font-family: 'PT Mono', sans-serif;
+    font-weight: 700;
+    color: rgb(var(--text));
+}
+
+html {font-size: 100%;} /* 16px */
+
+h1 {font-size: 4.210rem; /* 67.36px */}
+
+h2 {font-size: 3.158rem; /* 50.56px */}
+
+h3 {font-size: 2.369rem; /* 37.92px */}
+
+h4 {font-size: 1.777rem; /* 28.48px */}
+
+h5 {font-size: 1.333rem; /* 21.28px */}
+
+small {font-size: 0.750rem; /* 12px */}
+
+.sidebar {
+    display: flex;
+    flex-direction: row;
+    height: 90vh;
+    max-height: 90vh;
+    top: 5vh;
+    left: -2em;
+    padding-left: 2em;
+    background: rgba(var(--background), .8);
+    border: 1px solid rgb(var(--accent));
+    box-shadow: 0 0 2em rgb(var(--accent));
+    border-radius: 2em;
     position: absolute;
-    top: 10px;
-    left: 10px;
-    z-index: 100;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 10px;
-    border-radius: 5px;
-    max-height: 90vh; /* Set maximum height for the control panel */
-    overflow-y: auto; /* Enable vertical scrolling */
-    width: 250px; /* You can adjust the width if necessary */
+    backdrop-filter: blur(1em);
+    overflow-x: hidden;
 }
 
-.control-group {
-    margin-bottom: 10px;
+.sidebar-content {
+    display: flex;
+    flex-direction: column;
+    max-width: 24em;
+    height: 100%;
+}
+
+.sidebar-collapse {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1em;
+    height: 100%;
+}
+.sidebar-collapse:hover {
+    background: linear-gradient(to left, rgb(var(--accent), .4), rgb(var(--accent), .1));
+}
+
+.playback-settings {
+    padding: 1em;
+}
+
+.other-settings {
+    padding: 1em;
+    overflow-y: auto;
+
+    .settings-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 1em;
+    }
+    .settings-item:last-child {
+        margin-bottom: 0;
+    }
 }
 
 canvas {
