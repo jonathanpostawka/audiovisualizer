@@ -65,11 +65,12 @@ small {font-size: 0.750rem; /* 12px */}
         background: rgb(var(--primary));
         border: none;
         border-radius: 1em;
+        box-shadow: 0 0 1em rgb(var(--primary));
         padding: .7em;
-        margin: .4em;
+        margin: .7em;
     }
     button:hover, input:hover, select:hover {
-        box-shadow: 0 0 1em rgb(var(--accent));
+        box-shadow: 0 0 2em rgb(var(--accent));
     }
 }
 
@@ -96,10 +97,6 @@ small {font-size: 0.750rem; /* 12px */}
         display: flex;
         align-items: center;
         justify-content: space-between;
-        margin-bottom: 1em;
-    }
-    .settings-item:last-child {
-        margin-bottom: 0;
     }
 }
 
