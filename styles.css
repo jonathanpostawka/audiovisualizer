@@ -72,32 +72,6 @@ small {font-size: 0.750rem; /* 12px */}
     button:hover, input:hover, select:hover {
         box-shadow: 0 0 2em rgb(var(--accent));
     }
-
-    input.knob {
-        appearance: none;
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: radial-gradient(circle at center, #666 0%, #222 80%);
-        position: relative;
-        border: 2px solid #999;
-    }
-    input.knob::-webkit-slider-thumb {
-        appearance: none;
-        width: 0;
-        height: 0;
-    }
-    input.knob::after {
-        content: '';
-        position: absolute;
-        top: 10%;
-        left: 50%;
-        width: 4px;
-        height: 20px;
-        background: #fff;
-        transform-origin: bottom center;
-        transform: translateX(-50%) rotate(calc(3.6deg * var(--val,0)));
-    }
 }
 
 .sidebar-collapse {
