@@ -1,11 +1,9 @@
 let scene, camera, renderer, analyser, dataArray, audioContext, source, controls;
 let geometries = [], material;
-let playButton, pauseButton, loadingBar, loadingBarContainer, loadingText;
-let geometrySelect, bgColorInput, geomColorInput, dynamicsStrengthInput, dynamicsIntensityInput, randomizeCheckbox, light1ColorInput, light2ColorInput, lightRotationSpeedInput, surfaceTypeSelect, masterEffectStrengthInput, geometryCountInput, bgColorAutoSelect, geomColorAutoSelect, stroboColorInput, cameraMovementCheckbox, cameraSpeedInput, cameraCrazinessInput;
-let positionSensitivityInput, rotationSensitivityInput, scaleSensitivityInput, skewSensitivityInput, twistSensitivityInput, movementPatternSelect;
 let audio, isPlaying = false;
 let composer, renderPass, filmPass, vignettePass, colorCorrectionPass;
 let mediaRecorder;
+let controlsWindow = null;
 let videoQuality = 'high';
 let recordedChunks = [];
 let recording = false;
@@ -15,18 +13,26 @@ let geometryCount = 1;
 let cameraRadius = 10;
 let automateCamera = false;
 let cameraSpeed = 1, cameraCraziness = 0;
-let cameraModeSelect;
 let cameraMode = 'normal';
 let particleSystem, particleGeometry, particleMaterial;
-let particleToggle, particleCountInput, particleShapeSelect, particleSizeInput, particleSpeedInput, particleDirectionSelect, particleMovementSelect;
 let particleCount = 5000;
 let particleSize = 1;
 let particleSpeed = 1;
 let particleDirection = 'outward';
 let particleMovement = 'linear';
 let automateDynamics = false;
-let dynamicAutoToggle;
 let wasAutomateCameraEnabled = true;
+
+async function loadLocalControls() {
+    const container = document.getElementById('localControls');
+    if (!container) return;
+    const res = await fetch('controls.html');
+    const doc = new DOMParser().parseFromString(await res.text(), 'text/html');
+    const sidebar = doc.querySelector('.sidebar');
+    if (sidebar) {
+        container.innerHTML = sidebar.innerHTML;
+    }
+}
 let movementSensitivity = {
     position: 1.0,
     rotation: 0.3,
@@ -103,7 +109,6 @@ function init() {
     setupUIControls();
     setupNewEffectControls();
     setupParticleControls();
-    setupNewEffectControls();
     createGeometries();
     createParticleSystem();
 
@@ -112,10 +117,10 @@ function init() {
 
 function createParticleSystem() {
     particleGeometry = new THREE.BufferGeometry();
-    const positions = new Float32Array(particleCount * 100);
-    const colors = new Float32Array(particleCount * 100);
+    const positions = new Float32Array(particleCount * 3);
+    const colors = new Float32Array(particleCount * 3);
 
-    for (let i = 0; i < particleCount * 100; i += 3) {
+    for (let i = 0; i < particleCount * 3; i += 3) {
         positions[i] = (Math.random() - 0.5) * 800;
         positions[i + 1] = (Math.random() - 0.5) * 800;
         positions[i + 2] = (Math.random() - 0.5) * 800;
@@ -137,20 +142,23 @@ function createParticleSystem() {
         sizeAttenuation: true,
     });
 
-    updateParticleShape(particleShapeSelect.value);
+    const shapeSelect = document.getElementById('particleShape');
+    if (shapeSelect) {
+        updateParticleShape(shapeSelect.value);
+    }
 
     particleSystem = new THREE.Points(particleGeometry, particleMaterial);
     scene.add(particleSystem);
 }
 
 function setupParticleControls() {
-    particleToggle = document.getElementById('particlesToggle');
-    particleCountInput = document.getElementById('particleCount');
-    particleShapeSelect = document.getElementById('particleShape');
-    particleSizeInput = document.getElementById('particleSize');
-    particleSpeedInput = document.getElementById('particleSpeed');
-    particleDirectionSelect = document.getElementById('particleDirection');
-    particleMovementSelect = document.getElementById('particleMovement');
+    const particleToggle = document.getElementById('particlesToggle');
+    const particleCountInput = document.getElementById('particleCount');
+    const particleShapeSelect = document.getElementById('particleShape');
+    const particleSizeInput = document.getElementById('particleSize');
+    const particleSpeedInput = document.getElementById('particleSpeed');
+    const particleDirectionSelect = document.getElementById('particleDirection');
+    const particleMovementSelect = document.getElementById('particleMovement');
 
     particleToggle.addEventListener('change', (event) => {
         particleSystem.visible = event.target.checked;
@@ -382,8 +390,9 @@ function createMaterial() {
 
 function createGeometries() {
     removeGeometries();
+    const type = document.getElementById('geometrySelect').value;
     for (let i = 0; i < geometryCount; i++) {
-        const geometry = new THREE.Mesh(getGeometry(geometrySelect.value), material);
+        const geometry = new THREE.Mesh(getGeometry(type), material);
         geometry.position.set(
             (Math.random() - 0.5) * 25,
             (Math.random() - 0.5) * 25,
@@ -498,54 +507,48 @@ function applySurfaceType(type) {
 }
 
 function setupUIControls() {
-    playButton = document.getElementById('playButton');
-    pauseButton = document.getElementById('pauseButton');
-    loadingBar = document.getElementById('loadingBar');
-    loadingBarContainer = document.getElementById('loadingBarContainer');
-    loadingText = document.getElementById('loadingText');
-    geometrySelect = document.getElementById('geometrySelect');
-    geometryCountInput = document.getElementById('geometryCount');
-    bgColorInput = document.getElementById('bgColor');
-    geomColorInput = document.getElementById('geomColor');
-    dynamicsStrengthInput = document.getElementById('dynamicsStrength');
-    dynamicsIntensityInput = document.getElementById('dynamicsIntensity');
-    randomizeCheckbox = document.getElementById('randomize');
-    light1ColorInput = document.getElementById('light1Color');
-    light2ColorInput = document.getElementById('light2Color');
-    lightRotationSpeedInput = document.getElementById('lightRotationSpeed');
-    surfaceTypeSelect = document.getElementById('surfaceType');
-    masterEffectStrengthInput = document.getElementById('masterEffectStrength');
-    bgColorAutoSelect = document.getElementById('bgColorAuto');
-    geomColorAutoSelect = document.getElementById('geomColorAuto');
-    stroboColorInput = document.getElementById('stroboColor');
-    cameraMovementCheckbox = document.getElementById('automateCamera');
+    const playButton = document.getElementById('playButton');
+    const pauseButton = document.getElementById('pauseButton');
+    const loadingBar = document.getElementById('loadingBar');
+    const loadingBarContainer = document.getElementById('loadingBarContainer');
+    const loadingText = document.getElementById('loadingText');
+    const geometryCountInput = document.getElementById('geometryCount');
+    const bgColorInput = document.getElementById('bgColor');
+    const geomColorInput = document.getElementById('geomColor');
+    const dynamicsStrengthInput = document.getElementById('dynamicsStrength');
+    const dynamicsIntensityInput = document.getElementById('dynamicsIntensity');
+    const randomizeCheckbox = document.getElementById('randomize');
+    const light1ColorInput = document.getElementById('light1Color');
+    const light2ColorInput = document.getElementById('light2Color');
+    const lightRotationSpeedInput = document.getElementById('lightRotationSpeed');
+    const surfaceTypeSelect = document.getElementById('surfaceType');
+    const masterEffectStrengthInput = document.getElementById('masterEffectStrength');
+    const bgColorAutoSelect = document.getElementById('bgColorAuto');
+    const geomColorAutoSelect = document.getElementById('geomColorAuto');
+    const stroboColorInput = document.getElementById('stroboColor');
+    const cameraMovementCheckbox = document.getElementById('automateCamera');
     const videoQualitySelect = document.getElementById('videoQualitySelect');
     videoQualitySelect.addEventListener('change', (event) => {
         videoQuality = event.target.value;
     });
-    cameraSpeedInput = document.getElementById('cameraSpeed');
-    cameraCrazinessInput = document.getElementById('cameraCraziness');
+    const cameraSpeedInput = document.getElementById('cameraSpeed');
+    const cameraCrazinessInput = document.getElementById('cameraCraziness');
     setupMovementControls();
+    setupKnobs();
     playButton.addEventListener('click', playAudio);
     pauseButton.addEventListener('click', pauseAudio);
-    dynamicAutoToggle = document.getElementById('dynamicAutoToggle');
+    const dynamicAutoToggle = document.getElementById('dynamicAutoToggle');
     dynamicAutoToggle.addEventListener('change', (event) => {
         automateDynamics = event.target.checked;
     });
-    document.addEventListener('DOMContentLoaded', () => {
-        cameraModeSelect = document.getElementById('cameraModeSelect');
-
-        // Attach event listener to the dropdown
-        cameraModeSelect.addEventListener('change', (event) => {
-            cameraMode = event.target.value;
-            console.log("Selected Camera Mode: ", cameraMode);  // Debugging log
-        });
-
-        document.getElementById('startRecordingButton').addEventListener('click', startRecording);
-        document.getElementById('stopRecordingButton').addEventListener('click', stopRecording);
+    const cameraModeSelect = document.getElementById('cameraModeSelect');
+    cameraModeSelect.addEventListener('change', (event) => {
+        cameraMode = event.target.value;
     });
+    document.getElementById('startRecordingButton').addEventListener('click', startRecording);
+    document.getElementById('stopRecordingButton').addEventListener('click', stopRecording);
 
-    geometrySelect.addEventListener('change', createGeometries);
+    document.getElementById('geometrySelect').addEventListener('change', createGeometries);
 
     geometryCountInput.addEventListener('input', (event) => {
         geometryCount = parseInt(event.target.value);
@@ -612,12 +615,12 @@ function setupUIControls() {
 }
 
 function setupMovementControls() {
-    positionSensitivityInput = document.getElementById('positionSensitivity');
-    rotationSensitivityInput = document.getElementById('rotationSensitivity');
-    scaleSensitivityInput = document.getElementById('scaleSensitivity');
-    skewSensitivityInput = document.getElementById('skewSensitivity');
-    twistSensitivityInput = document.getElementById('twistSensitivity');
-    movementPatternSelect = document.getElementById('movementPatternSelect');
+    const positionSensitivityInput = document.getElementById('positionSensitivity');
+    const rotationSensitivityInput = document.getElementById('rotationSensitivity');
+    const scaleSensitivityInput = document.getElementById('scaleSensitivity');
+    const skewSensitivityInput = document.getElementById('skewSensitivity');
+    const twistSensitivityInput = document.getElementById('twistSensitivity');
+    const movementPatternSelect = document.getElementById('movementPatternSelect');
 
     positionSensitivityInput.addEventListener('input', (event) => {
         movementSensitivity.position = parseFloat(event.target.value);
@@ -641,6 +644,17 @@ function setupMovementControls() {
 
     movementPatternSelect.addEventListener('change', (event) => {
         movementPattern = event.target.value;
+    });
+}
+
+function setupKnobs() {
+    const ranges = document.querySelectorAll('input[type="range"]');
+    ranges.forEach(r => {
+        r.classList.add('knob');
+        r.addEventListener('input', () => {
+            r.style.setProperty('--val', r.value * 100 / (r.max - r.min));
+        });
+        r.dispatchEvent(new Event('input'));
     });
 }
 
@@ -682,45 +696,7 @@ function animate() {
     light1.intensity = 10 * (0.3 + Math.random() * 0.7);
     light2.intensity = 10 * (0.3 + Math.random() * 0.7);
 
-    geometries.forEach((geometry, index) => {
-        let audioData = 0;
-        if (dataArray && dataArray.length > 0) {
-            audioData = dataArray[index % 256] / 255;
-        }
-        let audioScale = 1 + audioData * dynamicsIntensity * 20 * movementSensitivity.scale;
-        geometry.scale.set(audioScale, audioScale, audioScale);
-
-        let positionShift = audioData * movementSensitivity.position;
-        // Handle different movement patterns
-        if (movementPattern !== 'none') { // Add this check to prevent movement when "None" is selected
-            geometry.position.x += positionShift * Math.sin(time + index);
-            geometry.position.y += positionShift * Math.cos(time + index);
-            geometry.position.z += positionShift * Math.sin(time * 0.5 + index);
-
-            let rotationSpeed = 0.01 + audioData * movementSensitivity.rotation * 0.008;
-            geometry.rotation.x += rotationSpeed;
-            geometry.rotation.y += rotationSpeed;
-
-            geometry.rotation.z += Math.sin(time * movementSensitivity.skew + index) * 0.05;
-            geometry.rotation.x += Math.cos(time * movementSensitivity.twist + index) * 0.05;
-
-            if (movementPattern === 'oscillation') {
-                geometry.position.x += Math.sin(time * movementSensitivity.position + index) * 0.01;
-                geometry.position.y += Math.cos(time * movementSensitivity.position + index) * 0.01;
-            } else if (movementPattern === 'wave') {
-                geometry.position.x += Math.sin(time * movementSensitivity.position + index) * 0.02;
-                geometry.position.y += Math.sin(time * movementSensitivity.position + index * 0.05) * 0.02;
-            } else if (movementPattern === 'spiral') {
-                geometry.position.x += Math.sin(time * movementSensitivity.position + index) * 0.03;
-                geometry.position.z += Math.cos(time * movementSensitivity.position + index) * 0.03;
-            }
-        }
-
-        if (analyser) {
-            audioScale = 1 + (dataArray[index % 256] / 255) * dynamicsIntensity * 2;
-            geometry.scale.set(audioScale, audioScale, audioScale);
-        }
-    });
+    updateGeometryFromAudio(time);
 
     controls.update();
 
@@ -876,6 +852,9 @@ function animateParticles() {
 }
 
 function automateColors(time) {
+    const bgColorAutoSelect = document.getElementById('bgColorAuto');
+    const geomColorAutoSelect = document.getElementById('geomColorAuto');
+    const stroboColorInput = document.getElementById('stroboColor');
     const stroboInterval = Math.floor(time * 10) % 3;
 
     if (bgColorAutoSelect.value === "strobo") {
@@ -1021,15 +1000,18 @@ function startRecording() {
     let options;
     switch (videoQuality) {
         case 'low':
-            options = {mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 500000};
+            options = {mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', videoBitsPerSecond: 500000};
             break;
         case 'medium':
-            options = {mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 2500000};
+            options = {mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', videoBitsPerSecond: 2500000};
             break;
         case 'high':
         default:
-            options = {mimeType: 'video/webm; codecs="vp8"', videoBitsPerSecond: 5000000};
+            options = {mimeType: 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', videoBitsPerSecond: 5000000};
             break;
+    }
+    if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+        options.mimeType = 'video/webm; codecs="vp8"';
     }
     mediaRecorder = new MediaRecorder(combinedStream, options);
 
@@ -1040,14 +1022,14 @@ function startRecording() {
     };
 
     mediaRecorder.onstop = function () {
-        const blob = new Blob(recordedChunks, {
-            type: 'video/webm'
-        });
+        const type = mediaRecorder.mimeType.includes('mp4') ? 'video/mp4' : 'video/webm';
+        const ext = type === 'video/mp4' ? 'mp4' : 'webm';
+        const blob = new Blob(recordedChunks, { type });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.style.display = 'none';
         a.href = url;
-        a.download = 'scene_recording_with_audio.webm';
+        a.download = `scene_recording_with_audio.${ext}`;
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {
@@ -1081,7 +1063,7 @@ document.getElementById('fileInput').addEventListener('change', function () {
     source.connect(analyser);
     analyser.connect(audioContext.destination);
 
-    loadingBarContainer.style.display = 'block';
+    document.getElementById('loadingBarContainer').style.display = 'block';
     audio.addEventListener('progress', updateLoadingProgress);
     audio.addEventListener('canplaythrough', hideLoadingBar);
     audio.addEventListener('ended', () => {
@@ -1090,25 +1072,78 @@ document.getElementById('fileInput').addEventListener('change', function () {
     });
 
     audio.addEventListener('error', () => {
-        loadingText.textContent = "Error loading audio";
-        loadingBarContainer.style.backgroundColor = "#f00";
+        document.getElementById('loadingText').textContent = "Error loading audio";
+        document.getElementById('loadingBarContainer').style.backgroundColor = "#f00";
     });
 });
 
 function updateLoadingProgress() {
+    const bar = document.getElementById('loadingBar');
+    const text = document.getElementById('loadingText');
     if (audio.buffered.length > 0) {
         const bufferedEnd = audio.buffered.end(audio.buffered.length - 1);
         const duration = audio.duration;
         if (duration > 0) {
             const progress = (bufferedEnd / duration) * 100;
-            loadingBar.style.width = `${progress}%`;
-            loadingText.textContent = `Loading... ${Math.round(progress)}%`;
+            bar.style.width = `${progress}%`;
+            text.textContent = `Loading... ${Math.round(progress)}%`;
         }
     }
 }
 
-function hideLoadingBar() {
-    loadingBarContainer.style.display = 'none';
+function updateGeometryFromAudio(time) {
+    if (!analyser) return;
+    analyser.getByteFrequencyData(dataArray);
+    const bandSize = Math.floor(dataArray.length / geometries.length) || 1;
+    geometries.forEach((geom, i) => {
+        const start = i * bandSize;
+        const end = Math.min(start + bandSize, dataArray.length);
+        let sum = 0;
+        for (let j = start; j < end; j++) sum += dataArray[j];
+        const amp = (sum / (end - start)) / 255;
+        const scale = 1 + amp * dynamicsIntensity * 5 * movementSensitivity.scale;
+        geom.scale.set(scale, scale, scale);
+
+        if (movementPattern !== 'none') {
+            const shift = amp * movementSensitivity.position;
+            geom.position.x += shift * Math.sin(time + i);
+            geom.position.y += shift * Math.cos(time + i);
+            geom.rotation.x += amp * movementSensitivity.rotation * 0.05;
+            geom.rotation.y += amp * movementSensitivity.rotation * 0.05;
+        }
+    });
 }
 
-init();
+function hideLoadingBar() {
+    document.getElementById('loadingBarContainer').style.display = 'none';
+}
+
+if (!window.IS_CONTROLS_WINDOW) {
+    const openBtn = document.getElementById('openControls');
+    if (openBtn) {
+        openBtn.addEventListener('click', () => {
+            if (!controlsWindow || controlsWindow.closed) {
+                controlsWindow = window.open('controls.html', 'controls', 'width=400,height=600');
+            } else {
+                controlsWindow.focus();
+            }
+        });
+    }
+    window.addEventListener('message', (event) => {
+        const {id, value, checked, tag, type} = event.data || {};
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (tag === 'BUTTON') {
+            el.click();
+            return;
+        }
+        if (type === 'checkbox') {
+            el.checked = checked;
+            el.dispatchEvent(new Event('change'));
+        } else {
+            el.value = value;
+            el.dispatchEvent(new Event('input'));
+        }
+    });
+    loadLocalControls().then(init);
+}
