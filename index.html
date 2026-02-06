@@ -12,6 +12,22 @@
 <div class="sidebar">
     <div class="sidebar-content">
         <div class="playback-settings">
+            <div class="settings-item preset-bar">
+                <label for="presetSelect">EDM Preset:</label>
+                <select id="presetSelect">
+                    <option value="neonPulse">Neon Pulse</option>
+                    <option value="festivalMainstage">Festival Mainstage</option>
+                    <option value="deepBassTunnel">Deep Bass Tunnel</option>
+                    <option value="hyperspace">Hyperspace</option>
+                    <option value="liquidDreams">Liquid Dreams</option>
+                </select>
+                <button id="applyPresetButton">Apply</button>
+                <button id="resetSettingsButton">Reset</button>
+            </div>
+            <div class="settings-item status-bar">
+                <span>Live Energy</span>
+                <strong id="energyLevel">Idle</strong>
+            </div>
             <div class="settings-item">
                 <button id="playButton">Play</button>
                 <button id="pauseButton">Pause</button>
