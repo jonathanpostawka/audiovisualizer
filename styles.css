@@ -129,3 +129,26 @@ canvas {
     width: 100vw;
     height: 100vh;
 }
+
+.preset-bar {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: .4em;
+}
+
+.preset-bar label {
+    width: 100%;
+}
+
+.status-bar {
+    justify-content: space-between;
+    border: 1px solid rgb(var(--primary), .3);
+    border-radius: 1em;
+    padding: .4em .8em;
+    margin: 0 .7em;
+    background: rgb(var(--background), .5);
+}
+
+.status-bar strong {
+    color: rgb(var(--accent));
+}

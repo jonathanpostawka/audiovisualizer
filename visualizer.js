@@ -1,7 +1,7 @@
 let scene, camera, renderer, analyser, dataArray, audioContext, source, controls;
 let geometries = [], material;
 let playButton, pauseButton, loadingBar, loadingBarContainer, loadingText;
-let geometrySelect, bgColorInput, geomColorInput, dynamicsStrengthInput, dynamicsIntensityInput, randomizeCheckbox, light1ColorInput, light2ColorInput, lightRotationSpeedInput, surfaceTypeSelect, masterEffectStrengthInput, geometryCountInput, bgColorAutoSelect, geomColorAutoSelect, stroboColorInput, cameraMovementCheckbox, cameraSpeedInput, cameraCrazinessInput;
+let geometrySelect, bgColorInput, geomColorInput, dynamicsStrengthInput, dynamicsIntensityInput, randomizeCheckbox, light1ColorInput, light2ColorInput, lightRotationSpeedInput, surfaceTypeSelect, masterEffectStrengthInput, geometryCountInput, bgColorAutoSelect, geomColorAutoSelect, stroboColorInput, cameraMovementCheckbox, cameraSpeedInput, cameraCrazinessInput, presetSelect, applyPresetButton, resetSettingsButton, energyLevelLabel;
 let positionSensitivityInput, rotationSensitivityInput, scaleSensitivityInput, skewSensitivityInput, twistSensitivityInput, movementPatternSelect;
 let audio, isPlaying = false;
 let composer, renderPass, filmPass, vignettePass, colorCorrectionPass;
@@ -35,6 +35,60 @@ let movementSensitivity = {
     twist: 0.5
 };
 let movementPattern = 'oscillation';
+let smoothedEnergy = 0;
+
+const EDM_PRESETS = {
+    neonPulse: {
+        geometrySelect: 'torusKnot', geometryCount: 4, surfaceType: 'holographic',
+        particlesToggle: true, particleCount: 4200, particleShape: 'star', particleSize: 1.8, particleSpeed: 2.1, particleDirection: 'outward', particleMovement: 'spiral',
+        dynamicsStrength: 1.8, dynamicsIntensity: 2.3, dynamicAutoToggle: true,
+        positionSensitivity: 1.3, rotationSensitivity: 1.2, scaleSensitivity: 1.6, skewSensitivity: 0.8, twistSensitivity: 1.1, movementPattern: 'spiral',
+        bgColor: '#030520', bgColorAuto: 'fade', geomColor: '#58f6ff', geomColorAuto: 'fade', stroboColor: '#ff00ff',
+        light1Color: '#9d7dff', light2Color: '#00ffe0', lightRotationSpeed: 0.22,
+        automateCamera: true, cameraMode: 'circularPath', cameraSpeed: 1.4, cameraCraziness: 0.2,
+        filmGrainToggle: false, vignetteToggle: true, vignetteDarkness: 1.1, colorCorrectionToggle: true, saturation: 1.2
+    },
+    festivalMainstage: {
+        geometrySelect: 'icosahedron', geometryCount: 8, surfaceType: 'chrome',
+        particlesToggle: true, particleCount: 5600, particleShape: 'circle', particleSize: 1.3, particleSpeed: 2.8, particleDirection: 'upward', particleMovement: 'linear',
+        dynamicsStrength: 2.2, dynamicsIntensity: 2.8, dynamicAutoToggle: true,
+        positionSensitivity: 1.7, rotationSensitivity: 1.5, scaleSensitivity: 1.9, skewSensitivity: 0.9, twistSensitivity: 1.4, movementPattern: 'wave',
+        bgColor: '#070410', bgColorAuto: 'strobo', geomColor: '#ffffff', geomColorAuto: 'strobo', stroboColor: '#ff2f92',
+        light1Color: '#ff4f9f', light2Color: '#4ae1ff', lightRotationSpeed: 0.3,
+        automateCamera: true, cameraMode: 'randomJump', cameraSpeed: 1.8, cameraCraziness: 0.6,
+        filmGrainToggle: true, filmGrainIntensity: 0.28, vignetteToggle: true, vignetteDarkness: 1.5, colorCorrectionToggle: true, saturation: 1.4
+    },
+    deepBassTunnel: {
+        geometrySelect: 'cylinder', geometryCount: 2, surfaceType: 'reflective',
+        particlesToggle: true, particleCount: 3000, particleShape: 'square', particleSize: 1.4, particleSpeed: 1.2, particleDirection: 'inward', particleMovement: 'circular',
+        dynamicsStrength: 2.5, dynamicsIntensity: 3.0, dynamicAutoToggle: true,
+        positionSensitivity: 0.8, rotationSensitivity: 1.0, scaleSensitivity: 2.4, skewSensitivity: 0.6, twistSensitivity: 0.9, movementPattern: 'oscillation',
+        bgColor: '#000000', bgColorAuto: 'none', geomColor: '#0cc5ff', geomColorAuto: 'fade', stroboColor: '#48ffe0',
+        light1Color: '#0077ff', light2Color: '#00ffd9', lightRotationSpeed: 0.12,
+        automateCamera: true, cameraMode: 'zoomInOut', cameraSpeed: 0.9, cameraCraziness: 0.15,
+        filmGrainToggle: false, vignetteToggle: true, vignetteDarkness: 1.8, colorCorrectionToggle: true, brightness: 0.85
+    },
+    hyperspace: {
+        geometrySelect: 'knot', geometryCount: 6, surfaceType: 'psychedelic',
+        particlesToggle: true, particleCount: 6200, particleShape: 'triangle', particleSize: 0.9, particleSpeed: 3.4, particleDirection: 'random', particleMovement: 'spiral',
+        dynamicsStrength: 2.6, dynamicsIntensity: 3.2, dynamicAutoToggle: true,
+        positionSensitivity: 2.0, rotationSensitivity: 2.1, scaleSensitivity: 1.4, skewSensitivity: 1.1, twistSensitivity: 1.7, movementPattern: 'spiral',
+        bgColor: '#090012', bgColorAuto: 'fade', geomColor: '#f03fff', geomColorAuto: 'fade', stroboColor: '#35f4ff',
+        light1Color: '#f03fff', light2Color: '#1be7ff', lightRotationSpeed: 0.4,
+        automateCamera: true, cameraMode: 'spiral', cameraSpeed: 1.6, cameraCraziness: 0.5,
+        filmGrainToggle: true, filmGrainIntensity: 0.4, vignetteToggle: false, colorCorrectionToggle: true, hue: 0.2, saturation: 1.5
+    },
+    liquidDreams: {
+        geometrySelect: 'sphere', geometryCount: 5, surfaceType: 'fluid',
+        particlesToggle: true, particleCount: 4600, particleShape: 'circle', particleSize: 2.0, particleSpeed: 1.6, particleDirection: 'downward', particleMovement: 'circular',
+        dynamicsStrength: 1.4, dynamicsIntensity: 1.9, dynamicAutoToggle: true,
+        positionSensitivity: 1.2, rotationSensitivity: 0.8, scaleSensitivity: 1.7, skewSensitivity: 0.7, twistSensitivity: 0.8, movementPattern: 'wave',
+        bgColor: '#040d19', bgColorAuto: 'fade', geomColor: '#6af7ff', geomColorAuto: 'fade', stroboColor: '#8bff6a',
+        light1Color: '#4ab8ff', light2Color: '#6effd4', lightRotationSpeed: 0.18,
+        automateCamera: true, cameraMode: 'fixedRotation', cameraSpeed: 1.1, cameraCraziness: 0.1,
+        filmGrainToggle: false, vignetteToggle: true, vignetteDarkness: 0.9, colorCorrectionToggle: true, brightness: 1.1, saturation: 1.15
+    }
+};
 
 function init() {
     scene = new THREE.Scene();
@@ -103,7 +157,6 @@ function init() {
     setupUIControls();
     setupNewEffectControls();
     setupParticleControls();
-    setupNewEffectControls();
     createGeometries();
     createParticleSystem();
 
@@ -485,7 +538,7 @@ function applySurfaceType(type) {
             material.wireframe = true;
             break;
         case 'fluid':
-            material.uniforms.wavyStrength = 1.5;
+            material.uniforms.wavyStrength.value = 1.5;
             material.uniforms.color.value.set(0x0000ff);
             break;
         default:
@@ -494,6 +547,70 @@ function applySurfaceType(type) {
             material.uniforms.transparency.value = 1.0;
             material.wireframe = false;
             break;
+    }
+}
+
+
+function setControlValue(id, value, eventType = 'input') {
+    const element = document.getElementById(id);
+    if (!element || value === undefined) {
+        return;
+    }
+
+    if (element.type === 'checkbox') {
+        element.checked = Boolean(value);
+        element.dispatchEvent(new Event('change', {bubbles: true}));
+        return;
+    }
+
+    element.value = value;
+    element.dispatchEvent(new Event(eventType, {bubbles: true}));
+}
+
+function applyPreset(presetName) {
+    const preset = EDM_PRESETS[presetName];
+    if (!preset) {
+        return;
+    }
+
+    const controlMap = {
+        surfaceType: 'surfaceType',
+        movementPattern: 'movementPatternSelect',
+        cameraMode: 'cameraModeSelect'
+    };
+
+    const changeMap = {
+        geometrySelect: 'change',
+        surfaceType: 'change',
+        bgColorAuto: 'change',
+        geomColorAuto: 'change',
+        movementPattern: 'change',
+        cameraMode: 'change',
+        particleShape: 'change',
+        particleDirection: 'change',
+        particleMovement: 'change'
+    };
+
+    Object.entries(preset).forEach(([key, value]) => {
+        const controlId = controlMap[key] || key;
+        const eventType = changeMap[key] || 'input';
+        setControlValue(controlId, value, eventType);
+    });
+}
+
+function updateEnergyLabel(level) {
+    if (!energyLevelLabel) {
+        return;
+    }
+
+    if (level > 0.72) {
+        energyLevelLabel.textContent = 'Drop';
+    } else if (level > 0.45) {
+        energyLevelLabel.textContent = 'Drive';
+    } else if (level > 0.2) {
+        energyLevelLabel.textContent = 'Groove';
+    } else {
+        energyLevelLabel.textContent = 'Idle';
     }
 }
 
@@ -525,25 +642,26 @@ function setupUIControls() {
     });
     cameraSpeedInput = document.getElementById('cameraSpeed');
     cameraCrazinessInput = document.getElementById('cameraCraziness');
+    presetSelect = document.getElementById('presetSelect');
+    applyPresetButton = document.getElementById('applyPresetButton');
+    resetSettingsButton = document.getElementById('resetSettingsButton');
+    energyLevelLabel = document.getElementById('energyLevel');
     setupMovementControls();
     playButton.addEventListener('click', playAudio);
     pauseButton.addEventListener('click', pauseAudio);
+    applyPresetButton.addEventListener('click', () => applyPreset(presetSelect.value));
+    resetSettingsButton.addEventListener('click', () => applyPreset('neonPulse'));
     dynamicAutoToggle = document.getElementById('dynamicAutoToggle');
     dynamicAutoToggle.addEventListener('change', (event) => {
         automateDynamics = event.target.checked;
     });
-    document.addEventListener('DOMContentLoaded', () => {
-        cameraModeSelect = document.getElementById('cameraModeSelect');
-
-        // Attach event listener to the dropdown
-        cameraModeSelect.addEventListener('change', (event) => {
-            cameraMode = event.target.value;
-            console.log("Selected Camera Mode: ", cameraMode);  // Debugging log
-        });
-
-        document.getElementById('startRecordingButton').addEventListener('click', startRecording);
-        document.getElementById('stopRecordingButton').addEventListener('click', stopRecording);
+    cameraModeSelect = document.getElementById('cameraModeSelect');
+    cameraModeSelect.addEventListener('change', (event) => {
+        cameraMode = event.target.value;
     });
+
+    document.getElementById('startRecordingButton').addEventListener('click', startRecording);
+    document.getElementById('stopRecordingButton').addEventListener('click', stopRecording);
 
     geometrySelect.addEventListener('change', createGeometries);
 
@@ -642,6 +760,8 @@ function setupMovementControls() {
     movementPatternSelect.addEventListener('change', (event) => {
         movementPattern = event.target.value;
     });
+
+    applyPreset('neonPulse');
 }
 
 function animate() {
@@ -652,6 +772,10 @@ function animate() {
     if (analyser) {
         analyser.getByteFrequencyData(dataArray);
         material.uniforms.frequencyData.value = dataArray;
+        const averageEnergy = dataArray.reduce((sum, value) => sum + value, 0) / (dataArray.length * 255);
+        smoothedEnergy += (averageEnergy - smoothedEnergy) * 0.12;
+        updateEnergyLabel(smoothedEnergy);
+
         if (automateDynamics) {
             // Calculate the bass frequencies (usually the first ~32 frequencies in the spectrum)
             let bassSum = 0;
@@ -672,6 +796,10 @@ function animate() {
             material.uniforms.dynamicsStrength.value = dynamicsStrength;
             material.uniforms.dynamicsIntensity.value = dynamicsIntensity;
         }
+    }
+
+    if (!analyser) {
+        updateEnergyLabel(0);
     }
 
     light1.position.x = Math.sin(time * lightRotationSpeed) * 5;
@@ -814,7 +942,7 @@ function animateParticles() {
         const y = positions[i + 1];
         const z = positions[i + 2];
 
-        let dx, dy, dz;
+        let dx = 0, dy = 0, dz = 0;
 
         switch (particleDirection) {
             case 'outward':
@@ -839,6 +967,8 @@ function animateParticles() {
                 dx = (Math.random() - 0.5) * particleSpeed * 0.1;
                 dy = (Math.random() - 0.5) * particleSpeed * 0.1;
                 dz = (Math.random() - 0.5) * particleSpeed * 0.1;
+                break;
+            default:
                 break;
         }
 
@@ -1015,7 +1145,7 @@ function startRecording() {
     // Combine both the canvas and audio streams
     const combinedStream = new MediaStream([
         ...canvasStream.getVideoTracks(),
-        ...audioStream.getAudioTracks()
+        ...(audioStream ? audioStream.getAudioTracks() : [])
     ]);
     recordedChunks = [];
     let options;
